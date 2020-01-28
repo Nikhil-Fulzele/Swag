@@ -1,3 +1,4 @@
+elasticsearch
 scikit-learn
 pandas
 numpy

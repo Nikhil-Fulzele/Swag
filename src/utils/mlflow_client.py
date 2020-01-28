@@ -1,5 +1,3 @@
-import requests
-
 
 BASE_URL = "localhost:8888"
 

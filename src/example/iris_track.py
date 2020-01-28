@@ -15,9 +15,9 @@ if __name__ == '__main__':
     y = iris.target
 
     # Initialize model
-    nn = MLPRegressor(hidden_layer_sizes=(10,), n_iter_no_change=10)
+    nn = MLPRegressor(hidden_layer_sizes=(10, 2, ), n_iter_no_change=10, activation="tanh", max_iter=10)
 
     # Fit with swag
     swag(nn.fit)(X, y)
 
-    # s.show()
+    s.show()

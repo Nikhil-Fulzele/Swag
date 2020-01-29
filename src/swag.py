@@ -3,11 +3,12 @@ from inspect import getfullargspec
 import pandas as pd
 from src.utils import send_to_es
 
+VALID_METHODS = ["fit", "predict", "predict_prob"]
+
 
 class Swag:
-    # TODO: Intelligent way to detect fit and predict method and use this as a type
-    # TODO: Associate relation between fit and predict
-    # TODO: Introduce metric as a param of predict
+    # TODO: Introduce metric as a param of validation
+    # TODO: Define schema for payload - decouple model-info, training-params and validation-metrics
     def __init__(self, experiment_name=None):
         if not experiment_name:
             raise ValueError("Experiment name is required")
@@ -17,35 +18,50 @@ class Swag:
     def swag(self, func):
         def wrap(*args):
 
+            method_name = func.__name__
+            print("Method Name: {}".format(method_name))
+
             start_time = time()
             s = func(*args)
             end_time = time()
+
+            if method_name not in VALID_METHODS:
+                return s
+
+            model_uid = "{}_{}".format(id(func.__self__), hash(func.__self__))
+            print("Model: {}".format(model_uid))
+
+            print("Triggered Time: {}".format(int(start_time)))
+
             delta_time = end_time - start_time
             print("Execution Time: {} sec".format(delta_time))
 
             package_name = func.__module__.split('.')[0]
             print("Package Name: {}".format(package_name))
 
-            module_name = func.__module__
+            module_name = func.__module__.split('._')[0]
             print("Module Name: {}".format(module_name))
 
             model_name = func.__self__.__class__.__name__
             print("Model: {}".format(model_name))
 
-            params = [i for i in getfullargspec(s.__init__).args[1:]]
-            params_dic = {k: s.__dict__[k] for k in params}
+            _params = [i for i in getfullargspec(func.__self__.__class__).args[1:]]
+            payload_dic = {k: func.__self__.__dict__[k] for k in _params}
 
-            params_dic.update({
+            payload_dic.update({
+                "triggered_time": int(start_time),
                 "experiment_name": self.experiment_name,
                 "execution_time": delta_time,
+                "method": method_name,
                 "package_name": package_name,
                 "module_name": module_name,
-                "model_name": model_name
+                "model_name": model_name,
+                "model_uid": model_uid
             })
 
-            send_to_es(params_dic)
+            send_to_es(payload_dic)
 
-            run_info = pd.Series(params_dic)
+            run_info = pd.Series(payload_dic)
             self.run_info = self.run_info.append(run_info, ignore_index=True)
 
             return s

@@ -20,8 +20,7 @@ if __name__ == '__main__':
     # Fit with swag
     swag(nn.fit)(X, y)
 
-    # Predict swag
+    # Predict with swag
     swag(nn.predict)(X)
 
     s.show()
-

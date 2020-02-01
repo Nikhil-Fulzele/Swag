@@ -1,5 +1,6 @@
-from uuid import uuid4
 from collections import OrderedDict
+
+from src.utils.unique_id_generator import  get_unique_id
 
 
 class ModelMeta:
@@ -327,7 +328,7 @@ class Experiment(ExperimentInfo):
     __mapper = {}
 
     def add_run(self, run_name: str, run_id: str, run_object: Run) -> None:
-        __key = uuid4().hex
+        __key = get_unique_id
         self.__mapper[run_name] = self.__mapper[run_id] = __key
         self.__run[__key] = run_object
 

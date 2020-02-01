@@ -5,7 +5,7 @@ VALID_METHODS = {
 
 
 def is_valid_package(package_name):
-    if not VALID_METHODS.get(package_name, None):
+    if VALID_METHODS.get(package_name, None):
         return True
     return False
 

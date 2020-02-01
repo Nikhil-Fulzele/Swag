@@ -1,10 +1,17 @@
 import datetime
 from time import time
-from inspect import getfullargspec
 import pandas as pd
+
 from src.utils import send_to_es
+from src.utils import get_unique_id
+from src.utils import is_valid_method
+
+from src.handlers.base_ml_handler import Experiment
 from src.handlers import sklearn_handler
-from src.utils import validator
+
+__MAPPER__ = {
+    "sklearn": sklearn_handler
+}
 
 
 class Swag:
@@ -20,10 +27,11 @@ class Swag:
     def __init__(self, experiment_name=None):
         if not experiment_name:
             raise ValueError("Experiment name is required")
-        self.experiment_name = experiment_name
+        self.experiment = Experiment(experiment_name, get_unique_id())
+        self.experiment_name = self.experiment.get_experiment_name()
         self.run_info = pd.DataFrame()
 
-    def swag(self, func):
+    def swag(self, func, run_name=None):
         def wrap(*args):
 
             method_name = func.__name__
@@ -36,42 +44,17 @@ class Swag:
             s = func(*args)
             end_time = time()
 
-            if not validator.is_valid_method(package_name, method_name):
+            if not is_valid_method(package_name, method_name):
                 return s
 
-            model_uid = "{}_{}".format(id(func.__self__), hash(func.__self__))
-            print("Model: {}".format(model_uid))
-
-            trigger_time = datetime.datetime.fromtimestamp(start_time / 1e3)
-            print("Triggered Time: {}".format(trigger_time))
-
-            delta_time = end_time - start_time
-            print("Execution Time: {} sec".format(delta_time))
-
-            module_name = func.__module__.split('._')[0]
-            print("Module Name: {}".format(module_name))
-
-            model_name = func.__self__.__class__.__name__
-            print("Model: {}".format(model_name))
-
-            _params = [i for i in getfullargspec(func.__self__.__class__).args[1:]]
-            payload_dic = {k: func.__self__.__dict__[k] for k in _params}
-
-            payload_dic.update({
-                "triggered_time": trigger_time,
-                "experiment_name": self.experiment_name,
-                "execution_time": delta_time,
-                "method": method_name,
-                "package_name": package_name,
-                "module_name": module_name,
-                "model_name": model_name,
-                "model_uid": model_uid
-            })
+            payload_dic = __MAPPER__.get(package_name).log_experiment(self.experiment, run_name, func,  method_name,
+                                                                      package_name, start_time, end_time)
 
             send_to_es(payload_dic)
 
             run_info = pd.Series(payload_dic)
             self.run_info = self.run_info.append(run_info, ignore_index=True)
+            print(payload_dic)
 
             return s
 
@@ -79,4 +62,3 @@ class Swag:
 
     def show(self):
         print(self.run_info.T)
-

@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from datetime import datetime
 
 from src.utils.unique_id_generator import  get_unique_id
 
@@ -99,7 +100,7 @@ class Param:
         """
         self.model_id = model_id
         self.param_name = param_name
-        self.param_value = param_value
+        self.param_value = str(param_value)
 
     def get_model_id(self) -> str:
         """
@@ -115,7 +116,7 @@ class Param:
         """
         return self.param_name
 
-    def get_param_value(self) -> any:
+    def get_param_value(self) -> str:
         """
 
         :return: Parameter Value
@@ -236,7 +237,7 @@ class ExperimentInfo:
 
 
 class RunInfo:
-    def __init__(self, run_name: str, run_id: str, triggered_time: int, execution_time: float) -> None:
+    def __init__(self, run_name: str, run_id: str, triggered_time: datetime, execution_time: float) -> None:
         self.run_name = run_name
         self.run_id = run_id
         self.triggered_time = triggered_time
@@ -248,7 +249,7 @@ class RunInfo:
     def get_run_id(self) -> str:
         return self.run_id
 
-    def get_triggered_time(self) -> int:
+    def get_triggered_time(self) -> datetime:
         return self.triggered_time
 
     def get_execution_time(self) -> float:

@@ -1,6 +1,6 @@
 from sklearn.neural_network import MLPRegressor
 from sklearn import datasets
-
+from random import randint
 from src.swag import Swag
 
 if __name__ == '__main__':
@@ -14,13 +14,18 @@ if __name__ == '__main__':
     X = iris.data
     y = iris.target
 
-    # Initialize model
-    nn = MLPRegressor(hidden_layer_sizes=(10, 2, ), n_iter_no_change=10, activation="tanh", max_iter=10)
+    for i in range(5):
 
-    # Fit with swag
-    swag(nn.fit)(X, y)
+        a = randint(1, 5)
+        b = randint(1, 10)
 
-    # Predict with swag
-    swag(nn.predict)(X)
+        # Initialize model
+        nn = MLPRegressor(hidden_layer_sizes=(a, b, ), n_iter_no_change=10, activation="tanh", max_iter=10)
+
+        # Fit with swag
+        swag(nn.fit)(X, y)
+
+        # Predict with swag
+        # swag(nn.predict)(X)
 
     s.show()

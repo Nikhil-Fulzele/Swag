@@ -1,8 +1,6 @@
 from collections import OrderedDict
 from datetime import datetime
 
-from src.utils.unique_id_generator import  get_unique_id
-
 
 class ModelMeta:
     def __init__(self, model_name: str, model_id: str, module_name: str, package_name: str,
@@ -299,11 +297,23 @@ class Run(RunInfo):
         return self.__metric[metric_name]
 
     def get_run_dict(self) -> dict:
+
+        def remove_model_id(dict_obj):
+            if dict_obj.get("model_id", None):
+                dict_obj.pop("model_id")
+            return dict_obj
+
         run_info = self.get_run_info_dict()
         model_info = self.get_model().get_model_meta_dict()
 
-        param_info = [self.get_param(i).get_param_dict() for i in self.__param]
-        metric_info = [self.get_metric(i).get_metric_dict() for i in self.__metric]
+        param_info = [
+            remove_model_id(self.get_param(i).get_param_dict())
+            for i in self.__param
+        ]
+        metric_info = [
+            remove_model_id(self.get_metric(i).get_metric_dict())
+            for i in self.__metric
+        ]
 
         return {
             "run_info": run_info,
@@ -325,40 +335,23 @@ class Run(RunInfo):
 
 
 class Experiment(ExperimentInfo):
-    __run = OrderedDict()
-    __mapper = {}
+    __run = None
 
-    def add_run(self, run_name: str, run_id: str, run_object: Run) -> None:
-        __key = get_unique_id
-        self.__mapper[run_name] = self.__mapper[run_id] = __key
-        self.__run[__key] = run_object
-
-    def get_run_by_name(self, run_name: str) -> dict:
-        run_obj = self.__run.get(self.__mapper.get(run_name, None), None)
-        if run_obj:
-            return run_obj.get_run_dict()
-
-    def get_run_by_id(self, run_id: str) -> dict:
-        run_obj = self.__run.get(self.__mapper.get(run_id, None), None)
-        if run_obj:
-            return run_obj.get_run_dict()
+    def add_run(self, run_object: Run) -> None:
+        self.__run = run_object
 
     def get_experiment_dict(self) -> dict:
         experiment_info = self.get_experiment_info_dict()
 
-        runs_info = [self.__run[i].get_run_dict() for i in self.__run]
+        runs_info = self.__run.get_run_dict()
 
-        return {
-            "experiment_info": experiment_info,
-            "runs_info": runs_info
-        }
+        experiment_info.update(runs_info)
+
+        return experiment_info
 
     def get_experiment_tuple(self) -> tuple:
         experiment_info = self.get_experiment_info_tuple()
 
-        runs_info = (self.__run[i].get_run_tuple() for i in self.__run)
+        run_info = self.__run.get_run_tuple()
 
-        return (
-            experiment_info,
-            runs_info
-        )
+        return experiment_info + run_info

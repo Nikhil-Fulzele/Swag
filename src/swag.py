@@ -47,8 +47,8 @@ class Swag:
             if not is_valid_method(package_name, method_name):
                 return s
 
-            payload_dic = __MAPPER__.get(package_name).log_experiment(self.experiment, run_name, func,  method_name,
-                                                                      package_name, start_time, end_time)
+            payload_dic = __MAPPER__.get(package_name).log_run(self.experiment, run_name, func,  method_name,
+                                                               package_name, start_time, end_time)
 
             send_to_es(payload_dic)
 

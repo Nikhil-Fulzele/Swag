@@ -3,11 +3,16 @@ import datetime
 
 import sklearn
 
-from src.utils import get_unique_id
+from src.utils import get_unique_id, get_run_name
 from src.handlers.base_ml_handler import Run
 
 
-def log_experiment(experiment, run_name, func,  method_name, package_name, start_time, end_time):
+def log_run(experiment, run_name, func,  method_name, package_name, start_time, end_time):
+
+    run_id = get_unique_id()
+
+    if not run_name:
+        run_name = get_run_name(run_id)
 
     model_uid = get_unique_id(func)
 
@@ -21,7 +26,7 @@ def log_experiment(experiment, run_name, func,  method_name, package_name, start
 
     package_version = sklearn.__version__
 
-    run = Run(run_name, get_unique_id(), triggered_time, execution_time)
+    run = Run(run_name, run_id, triggered_time, execution_time)
     run.add_model(
         model_name, model_uid, module_name, package_name, package_version
     )
@@ -32,6 +37,6 @@ def log_experiment(experiment, run_name, func,  method_name, package_name, start
             param_id = func.__self__.__dict__[param_name]
             run.add_param(param_name, param_id)
 
-    experiment.add_run(run_name, get_unique_id(), run)
+    experiment.add_run(run)
 
     return experiment.get_experiment_dict()

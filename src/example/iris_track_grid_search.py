@@ -22,6 +22,6 @@ if __name__ == '__main__':
     clf.fit(iris.data, iris.target)
 
     # Fit with swag
-    swag(svc.fit)(X, y)
+    swag(clf.fit)(X, y)
 
     s.show()

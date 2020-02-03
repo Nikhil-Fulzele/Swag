@@ -1,4 +1,5 @@
 from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn import datasets
 from random import randint
 from src.swag import Swag
@@ -14,7 +15,7 @@ if __name__ == '__main__':
     X = iris.data
     y = iris.target
 
-    for i in range(5):
+    for i in range(3):
 
         a = randint(1, 5)
         b = randint(1, 10)
@@ -25,7 +26,15 @@ if __name__ == '__main__':
         # Fit with swag
         swag(nn.fit)(X, y)
 
-        # Predict with swag
-        # swag(nn.predict)(X)
+        # Measure with swag
+        swag(mean_squared_error)(y, nn.predict(X))
 
+        # Measure with swag
+        swag(r2_score)(y, nn.predict(X))
+
+        # Measure with swag
+        yhat = nn.predict(X)
+        swag(mean_absolute_error)(y, yhat)
+
+    # s.load()
     s.show()

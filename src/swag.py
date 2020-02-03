@@ -1,10 +1,10 @@
-import datetime
 from time import time
-import pandas as pd
+from pprint import pprint
 
 from src.utils import send_to_es
 from src.utils import get_unique_id
-from src.utils import is_valid_method
+from src.utils import is_valid_method, get_method_type
+from src.utils import FITTER, MEASURE
 
 from src.handlers.base_ml_handler import Experiment
 from src.handlers import sklearn_handler
@@ -29,7 +29,7 @@ class Swag:
             raise ValueError("Experiment name is required")
         self.experiment = Experiment(experiment_name, get_unique_id())
         self.experiment_name = self.experiment.get_experiment_name()
-        self.run_info = pd.DataFrame()
+        self.swag_info = None
 
     def swag(self, func, run_name=None):
         def wrap(*args):
@@ -41,24 +41,34 @@ class Swag:
             print("Package Name: {}".format(package_name))
 
             start_time = time()
-            s = func(*args)
+            output = func(*args)
             end_time = time()
 
             if not is_valid_method(package_name, method_name):
-                return s
+                return output
 
-            payload_dic = __MAPPER__.get(package_name).log_run(self.experiment, run_name, func,  method_name,
-                                                               package_name, start_time, end_time)
+            method_type = get_method_type(package_name, method_name)
+            if method_type == FITTER:
 
-            send_to_es(payload_dic)
+                payload_dict = __MAPPER__.get(package_name).log_model_fitting(self.experiment, run_name, func,
+                                                                              package_name, start_time, end_time)
+                self.swag_info = payload_dict
 
-            run_info = pd.Series(payload_dic)
-            self.run_info = self.run_info.append(run_info, ignore_index=True)
-            print(payload_dic)
+            if method_type == MEASURE:
 
-            return s
+                payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
+                                                                              output)
+                self.swag_info = payload_dict
+
+            return output
 
         return wrap
 
+    def load(self):
+        send_to_es(self.swag_info)
+
     def show(self):
-        print(self.run_info.T)
+        pprint(self.swag_info)
+
+    def get_exp(self):
+        return self.swag_info

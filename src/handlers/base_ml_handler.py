@@ -3,21 +3,30 @@ from datetime import datetime
 
 
 class ModelMeta:
-    def __init__(self, model_name: str, model_id: str, module_name: str, package_name: str,
+    def __init__(self, run_id: str, model_name: str, model_id: str, module_name: str, package_name: str,
                  package_version: str) -> None:
         """
 
+        :param run_id: Run ID of this model
         :param model_name: Name of the model, e.g. RandomForestClassifier, MLPRegressor, etc...
         :param model_id: Unique ID of the model, generated using utils.model_id_generator
         :param module_name: Name of the module, eg. sklearn.neural_network, sklearn.svm, etc...
         :param package_name: Name of the package, e.g. sklearn, keras, etc...
         :param package_version: Package version, 0.22, 2.0, etc...
         """
+        self.run_id = run_id
         self.model_name = model_name
         self.model_id = model_id
         self.module_name = module_name
         self.package_name = package_name
         self.package_version = package_version
+
+    def get_run_id(self) -> str:
+        """
+
+        :return: Model's run id
+        """
+        return self.run_id
 
     def get_model_name(self) -> str:
         """
@@ -60,6 +69,7 @@ class ModelMeta:
         :return: Dictionary of Model meta info
         """
         return {
+            "run_id" : self.get_run_id(),
             "model_name": self.get_model_name(),
             "model_id": self.get_model_id(),
             "module_name": self.get_module_name(),
@@ -72,6 +82,7 @@ class ModelMeta:
 
         :return: Tuple of Model meta info in the order
         (
+            RUN ID,
             Model Name,
             Model ID,
             Module Name,
@@ -80,6 +91,7 @@ class ModelMeta:
         )
         """
         return (
+            self.get_run_id(),
             self.get_model_name(),
             self.get_model_id(),
             self.get_module_name(),
@@ -89,16 +101,25 @@ class ModelMeta:
 
 
 class Param:
-    def __init__(self, model_id: str, param_name: str, param_value: any) -> None:
+    def __init__(self, run_id: str, model_id: str, param_name: str, param_value: any) -> None:
         """
 
+        :param run_id: Run ID for this params
         :param model_id: Unique ID of the model, generated using utils.model_id_generator
         :param param_name: Name of the parameter, e.g. random_state, kernel, n_jobs
         :param param_value: Value of this parameter, e.g. 10, rbf, -1
         """
+        self.run_id = run_id
         self.model_id = model_id
         self.param_name = param_name
-        self.param_value = str(param_value)
+        self.param_value = param_value
+
+    def get_run_id(self) -> str:
+        """
+
+        :return: Run ID for this params
+        """
+        return self.run_id
 
     def get_model_id(self) -> str:
         """
@@ -114,7 +135,7 @@ class Param:
         """
         return self.param_name
 
-    def get_param_value(self) -> str:
+    def get_param_value(self) -> any:
         """
 
         :return: Parameter Value
@@ -127,6 +148,7 @@ class Param:
         :return: Dictionary of Param info
         """
         return {
+            "run_id": self.get_run_id(),
             "model_id": self.get_model_id(),
             "param_name": self.get_param_name(),
             "param_value": self.get_param_value()
@@ -137,12 +159,14 @@ class Param:
 
         :return: Tuple of Param info in the order
         (
+            Run ID,
             Model ID,
             Param Name,
             Param Value
         )
         """
         return (
+            self.get_run_id(),
             self.get_model_id(),
             self.get_param_name(),
             self.get_param_value()
@@ -150,16 +174,25 @@ class Param:
 
 
 class Metrics:
-    def __init__(self, model_id: str, metric_name: str, metric_value: float):
+    def __init__(self, run_id: str, model_id: str, metric_name: str, metric_value: float):
         """
 
+        :param run_id: Run ID for this metrics
         :param model_id: Unique ID of the model, generated using utils.model_id_generator
         :param metric_name: Name of the metric, e.g. AUC, Accuracy, F1-Score
         :param metric_value: Value of this metric, e.g. 0.1, 90, 0.98
         """
+        self.run_id = run_id
         self.model_id = model_id
         self.metric_name = metric_name
         self.metric_value = metric_value
+
+    def get_run_id(self) -> str:
+        """
+
+        :return: Run ID for this metrics
+        """
+        return self.run_id
 
     def get_model_id(self) -> str:
         """
@@ -188,6 +221,7 @@ class Metrics:
         :return: Dictionary of Metric info
         """
         return {
+            "run_id": self.get_run_id(),
             "model_id": self.get_model_id(),
             "metric_name": self.get_metric_name(),
             "metric_value": self.get_metric_value()
@@ -198,12 +232,14 @@ class Metrics:
 
         :return: Tuple of Metric info in order
         (
+            Run ID,
             Model ID,
             Metric Name,
             Metric Value
         )
         """
         return (
+            self.get_run_id(),
             self.get_model_id(),
             self.get_metric_name(),
             self.get_metric_value()
@@ -223,23 +259,27 @@ class ExperimentInfo:
 
     def get_experiment_info_dict(self) -> dict:
         return {
-            "experiment_name": self.experiment_name,
-            "experiment_id": self.experiment_id
+            "experiment_name": self.get_experiment_name(),
+            "experiment_id": self.get_experiment_id()
         }
 
     def get_experiment_info_tuple(self) -> tuple:
         return (
-            self.experiment_name,
-            self.experiment_id
+            self.get_experiment_name(),
+            self.get_experiment_id()
         )
 
 
 class RunInfo:
-    def __init__(self, run_name: str, run_id: str, triggered_time: datetime, execution_time: float) -> None:
+    def __init__(self, experiment_id: str, run_name: str, run_id: str, triggered_time: datetime, execution_time: float) -> None:
+        self.experiment_id = experiment_id
         self.run_name = run_name
         self.run_id = run_id
         self.triggered_time = triggered_time
         self.execution_time = execution_time
+
+    def get_experiment_id(self) -> str:
+        return self.experiment_id
 
     def get_run_name(self) -> str:
         return self.run_name
@@ -255,18 +295,20 @@ class RunInfo:
 
     def get_run_info_dict(self) -> dict:
         return {
-            "run_name": self.run_name,
-            "run_id": self.run_id,
-            "triggered_time": self.triggered_time,
-            "execution_time": self.execution_time
+            "experiment_id": self.get_experiment_id(),
+            "run_name": self.get_run_name(),
+            "run_id": self.get_run_id(),
+            "triggered_time": self.get_triggered_time(),
+            "execution_time": self.get_execution_time()
         }
 
     def get_run_info_tuple(self) -> tuple:
         return (
-            self.run_name,
-            self.run_id,
-            self.triggered_time,
-            self.execution_time
+            self.get_experiment_id(),
+            self.get_run_name(),
+            self.get_run_id(),
+            self.get_triggered_time(),
+            self.get_execution_time()
         )
 
 
@@ -277,20 +319,20 @@ class Run(RunInfo):
 
     def add_model(self, model_name: str, model_id: str, module_name: str, package_name: str,
                   package_version: str) -> None:
-        self.__model = ModelMeta(model_name, model_id, module_name, package_name, package_version)
+        self.__model = ModelMeta(self.get_run_id(), model_name, model_id, module_name, package_name, package_version)
 
     def get_model(self) -> ModelMeta:
         return self.__model
 
     def add_param(self, param_name: str, param_value: any) -> None:
-        param = Param(self.__model.get_model_id(), param_name, param_value)
+        param = Param(self.get_run_id(), self.__model.get_model_id(), param_name, param_value)
         self.__param[param_name] = param
 
     def get_param(self, param_name: str) -> Param:
         return self.__param[param_name]
 
     def add_metric(self, metric_name: str, metric_value: float) -> None:
-        metric = Metrics(self.__model.get_model_id(), metric_name, metric_value)
+        metric = Metrics(self.get_run_id(), self.__model.get_model_id(), metric_name, metric_value)
         self.__metric[metric_name] = metric
 
     def get_metric(self, metric_name: str) -> Metrics:
@@ -298,20 +340,21 @@ class Run(RunInfo):
 
     def get_run_dict(self) -> dict:
 
-        def remove_model_id(dict_obj):
-            if dict_obj.get("model_id", None):
-                dict_obj.pop("model_id")
+        def remove_ids(dict_obj, filter_list):
+            for key in filter_list:
+                if dict_obj.get(key, None):
+                    dict_obj.pop(key)
             return dict_obj
 
-        run_info = self.get_run_info_dict()
-        model_info = self.get_model().get_model_meta_dict()
+        run_info = remove_ids(self.get_run_info_dict(), ["experiment_id"])
+        model_info = remove_ids(self.get_model().get_model_meta_dict(), ["run_id"])
 
         param_info = [
-            remove_model_id(self.get_param(i).get_param_dict())
+            remove_ids(self.get_param(i).get_param_dict(), ["model_id", "run_id"])
             for i in self.__param
         ]
         metric_info = [
-            remove_model_id(self.get_metric(i).get_metric_dict())
+            remove_ids(self.get_metric(i).get_metric_dict(), ["model_id", "run_id"])
             for i in self.__metric
         ]
 
@@ -335,23 +378,33 @@ class Run(RunInfo):
 
 
 class Experiment(ExperimentInfo):
-    __run = None
+    __run = list()
 
     def add_run(self, run_object: Run) -> None:
-        self.__run = run_object
+        self.__run.append(run_object)
+
+    def get_all_run(self) -> list:
+        return self.__run
+
+    def get_run_at(self, k) -> Run:
+        return self.__run[k]
 
     def get_experiment_dict(self) -> dict:
         experiment_info = self.get_experiment_info_dict()
 
-        runs_info = self.__run.get_run_dict()
+        runs_info = [i.get_run_dict() for i in self.__run]
 
-        experiment_info.update(runs_info)
-
-        return experiment_info
+        return {
+            "experiment_info": experiment_info,
+            "runs_info": runs_info
+        }
 
     def get_experiment_tuple(self) -> tuple:
         experiment_info = self.get_experiment_info_tuple()
 
-        run_info = self.__run.get_run_tuple()
+        runs_info = (i.get_run_tuple() for i in self.__run)
 
-        return experiment_info + run_info
+        return (
+                experiment_info,
+                runs_info
+        )

@@ -3,8 +3,8 @@ from pprint import pprint
 
 from src.utils import send_to_es
 from src.utils import get_unique_id
-from src.utils import is_valid_method, get_method_type
-from src.utils import FITTER, MEASURE
+from src.utils import is_valid_method, get_method_type, get_class_type
+from src.utils import FITTER, MEASURE, OPTIMIZER
 
 from src.handlers.base_ml_handler import Experiment
 from src.handlers import sklearn_handler
@@ -47,18 +47,26 @@ class Swag:
             if not is_valid_method(package_name, method_name):
                 return output
 
-            method_type = get_method_type(package_name, method_name)
-            if method_type == FITTER:
+            if get_class_type(package_name, method_name) == OPTIMIZER:
 
-                payload_dict = __MAPPER__.get(package_name).log_model_fitting(self.experiment, run_name, func,
-                                                                              package_name, start_time, end_time)
+                payload_dict = __MAPPER__.get(package_name).log_optimizer(self.experiment, run_name, func, package_name,
+                                                                          start_time, end_time, output)
+
                 self.swag_info = payload_dict
 
-            if method_type == MEASURE:
+            else:
+                method_type = get_method_type(package_name, method_name)
+                if method_type == FITTER:
 
-                payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
-                                                                              output)
-                self.swag_info = payload_dict
+                    payload_dict = __MAPPER__.get(package_name).log_model_fitting(self.experiment, run_name, func,
+                                                                                  package_name, start_time, end_time)
+                    self.swag_info = payload_dict
+
+                if method_type == MEASURE:
+
+                    payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
+                                                                                  output)
+                    self.swag_info = payload_dict
 
             return output
 

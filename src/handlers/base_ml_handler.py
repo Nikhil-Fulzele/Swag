@@ -1,103 +1,6 @@
 from collections import OrderedDict
 from datetime import datetime
-
-
-class ModelMeta:
-    def __init__(self, run_id: str, model_name: str, model_id: str, module_name: str, package_name: str,
-                 package_version: str) -> None:
-        """
-
-        :param run_id: Run ID of this model
-        :param model_name: Name of the model, e.g. RandomForestClassifier, MLPRegressor, etc...
-        :param model_id: Unique ID of the model, generated using utils.model_id_generator
-        :param module_name: Name of the module, eg. sklearn.neural_network, sklearn.svm, etc...
-        :param package_name: Name of the package, e.g. sklearn, keras, etc...
-        :param package_version: Package version, 0.22, 2.0, etc...
-        """
-        self.run_id = run_id
-        self.model_name = model_name
-        self.model_id = model_id
-        self.module_name = module_name
-        self.package_name = package_name
-        self.package_version = package_version
-
-    def get_run_id(self) -> str:
-        """
-
-        :return: Model's run id
-        """
-        return self.run_id
-
-    def get_model_name(self) -> str:
-        """
-
-        :return: Model name
-        """
-        return self.model_name
-
-    def get_model_id(self) -> str:
-        """
-
-        :return: Model ID
-        """
-        return self.model_id
-
-    def get_module_name(self) -> str:
-        """
-
-        :return: Module name
-        """
-        return self.module_name
-
-    def get_package_name(self) -> str:
-        """
-
-        :return: Package name
-        """
-        return self.package_name
-
-    def get_package_version(self) -> str:
-        """
-
-        :return: Package version
-        """
-        return self.package_version
-
-    def get_model_meta_dict(self) -> dict:
-        """
-
-        :return: Dictionary of Model meta info
-        """
-        return {
-            "run_id" : self.get_run_id(),
-            "model_name": self.get_model_name(),
-            "model_id": self.get_model_id(),
-            "module_name": self.get_module_name(),
-            "package_name": self.get_package_name(),
-            "package_version": self.get_package_version()
-        }
-
-    def get_model_meta_tuple(self) -> tuple:
-        """
-
-        :return: Tuple of Model meta info in the order
-        (
-            RUN ID,
-            Model Name,
-            Model ID,
-            Module Name,
-            Package Name,
-            Package Version
-        )
-        """
-        return (
-            self.get_run_id(),
-            self.get_model_name(),
-            self.get_model_id(),
-            self.get_module_name(),
-            self.get_package_name(),
-            self.get_package_version()
-        )
+from src.utils import remove_ids
 
 
 class Param:
@@ -246,6 +149,203 @@ class Metrics:
         )
 
 
+class OptimizerInfo:
+    def __init__(self, optimizer_name: str, module_name: str) -> None:
+        """
+
+        :param optimizer_name: Name of the optimizer
+        :param module_name: Name of the module e.g. sklearn.model_selection
+        """
+        self.optimizer_name = optimizer_name
+        self.module_name = module_name
+
+    def get_optimizer_name(self) -> str:
+        """
+
+        :return: Optimizer name
+        """
+        return self.optimizer_name
+
+    def get_module_name(self) -> str:
+        """
+
+        :return: Module name
+        """
+        return self.module_name
+
+    def get_optimizer_dict(self) -> dict:
+        """
+
+        :return: Dictionary of Optimizer Info
+        """
+        return {
+            "optimizer_name": self.get_optimizer_name(),
+            "module_name": self.get_module_name()
+        }
+
+    def get_optimizer_tuple(self) -> tuple:
+        """
+
+        :return: Tuple of Optimizer Info in order
+            Optimizer Name,
+            Module name
+        """
+        return (
+            self.get_optimizer_name(),
+            self.get_module_name()
+        )
+
+
+class Optimizer(OptimizerInfo):
+    __param = OrderedDict()
+
+    def add_param(self, param_name: str, param_value: any) -> None:
+        param = Param("", "", param_name, param_value)
+        self.__param[param_name] = param
+
+    def get_param(self, param_name: str) -> Param:
+        return self.__param[param_name]
+
+    def get_optimizer_dict(self) -> dict:
+        optimizer_info = self.get_optimizer_dict()
+
+        param_info = [
+            remove_ids(self.get_param(i).get_param_dict(), ["model_id", "run_id"])
+            for i in self.__param
+        ]
+
+        return {
+            "optimizer": optimizer_info,
+            "param_info": param_info
+        }
+
+    def get_optimizer_tuple(self) -> tuple:
+        optimizer_info = self.get_optimizer_tuple()
+
+        param_info = (
+            self.get_param(i).get_param_tuple()
+            for i in self.__param
+        )
+
+        return (
+            optimizer_info,
+            param_info
+        )
+
+
+class ModelMeta:
+    def __init__(self, run_id: str, model_name: str, model_id: str, module_name: str, package_name: str,
+                 package_version: str, optimizer: [Optimizer, None] = None) -> None:
+        """
+
+        :param run_id: Run ID of this model
+        :param model_name: Name of the model, e.g. RandomForestClassifier, MLPRegressor, etc...
+        :param model_id: Unique ID of the model, generated using utils.model_id_generator
+        :param module_name: Name of the module, eg. sklearn.neural_network, sklearn.svm, etc...
+        :param package_name: Name of the package, e.g. sklearn, keras, etc...
+        :param package_version: Package version, 0.22, 2.0, etc...
+        """
+        self.run_id = run_id
+        self.model_name = model_name
+        self.model_id = model_id
+        self.module_name = module_name
+        self.package_name = package_name
+        self.package_version = package_version
+        self.optimizer = optimizer
+
+    def get_run_id(self) -> str:
+        """
+
+        :return: Model's run id
+        """
+        return self.run_id
+
+    def get_model_name(self) -> str:
+        """
+
+        :return: Model name
+        """
+        return self.model_name
+
+    def get_model_id(self) -> str:
+        """
+
+        :return: Model ID
+        """
+        return self.model_id
+
+    def get_module_name(self) -> str:
+        """
+
+        :return: Module name
+        """
+        return self.module_name
+
+    def get_package_name(self) -> str:
+        """
+
+        :return: Package name
+        """
+        return self.package_name
+
+    def get_package_version(self) -> str:
+        """
+
+        :return: Package version
+        """
+        return self.package_version
+
+    def get_optimizer(self) -> [Optimizer, None]:
+        """
+
+        :return: Optimizer used
+        """
+        return self.optimizer
+
+    def get_model_meta_dict(self) -> dict:
+        """
+
+        :return: Dictionary of Model meta info
+        """
+        optimizer_obj = self.get_optimizer()
+        optimizer = optimizer_obj.get_optimizer_dict() if optimizer_obj else None
+        return {
+            "run_id" : self.get_run_id(),
+            "model_name": self.get_model_name(),
+            "model_id": self.get_model_id(),
+            "module_name": self.get_module_name(),
+            "package_name": self.get_package_name(),
+            "package_version": self.get_package_version(),
+            "optimizer": optimizer
+        }
+
+    def get_model_meta_tuple(self) -> tuple:
+        """
+
+        :return: Tuple of Model meta info in the order
+        (
+            RUN ID,
+            Model Name,
+            Model ID,
+            Module Name,
+            Package Name,
+            Package Version,
+            Optimizer
+        )
+        """
+        optimizer_obj = self.get_optimizer()
+        optimizer = optimizer_obj.get_optimizer_tuple() if optimizer_obj else None
+        return (
+            self.get_run_id(),
+            self.get_model_name(),
+            self.get_model_id(),
+            self.get_module_name(),
+            self.get_package_name(),
+            self.get_package_version(),
+            optimizer
+        )
+
+
 class ExperimentInfo:
     def __init__(self, experiment_name: str, experiment_id: str) -> None:
         self.experiment_name = experiment_name
@@ -318,8 +418,9 @@ class Run(RunInfo):
     __metric = OrderedDict()
 
     def add_model(self, model_name: str, model_id: str, module_name: str, package_name: str,
-                  package_version: str) -> None:
-        self.__model = ModelMeta(self.get_run_id(), model_name, model_id, module_name, package_name, package_version)
+                  package_version: str, optimizer: [str, None] = None) -> None:
+        self.__model = ModelMeta(self.get_run_id(), model_name, model_id, module_name, package_name,
+                                 package_version, optimizer)
 
     def get_model(self) -> ModelMeta:
         return self.__model
@@ -339,12 +440,6 @@ class Run(RunInfo):
         return self.__metric[metric_name]
 
     def get_run_dict(self) -> dict:
-
-        def remove_ids(dict_obj, filter_list):
-            for key in filter_list:
-                if dict_obj.get(key, None):
-                    dict_obj.pop(key)
-            return dict_obj
 
         run_info = remove_ids(self.get_run_info_dict(), ["experiment_id"])
         model_info = remove_ids(self.get_model().get_model_meta_dict(), ["run_id"])
@@ -373,7 +468,10 @@ class Run(RunInfo):
         metric_info = (self.get_metric(i).get_metric_tuple() for i in self.__metric)
 
         return (
-            run_info, model_info, param_info, metric_info
+            run_info,
+            model_info,
+            param_info,
+            metric_info
         )
 
 

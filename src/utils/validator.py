@@ -1,8 +1,8 @@
 FITTER = 0
 PREDICTOR = 1
 MEASURE = 2
-OPTIMIZER = 3
-
+MODEL = 3
+OPTIMIZER = 4
 
 VALID_METHODS = {
     "sklearn": {
@@ -33,3 +33,14 @@ def get_method_type(package_name, method_name):
         return VALID_METHODS[package_name][method_name]
     return None
 
+
+def is_valid_class(package_name, class_name):
+    if is_valid_package(package_name):
+        return True
+    return False
+
+
+def get_class_type(package_name, class_name):
+    if is_valid_class(package_name, class_name):
+        return OPTIMIZER
+    return OPTIMIZER

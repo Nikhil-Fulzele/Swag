@@ -19,7 +19,6 @@ if __name__ == '__main__':
     param_distributions = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
     svc = svm.SVC()
     clf = RandomizedSearchCV(svc, param_distributions)
-    clf.fit(iris.data, iris.target)
 
     # Fit with swag
     swag(clf.fit)(X, y)

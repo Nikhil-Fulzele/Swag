@@ -19,7 +19,6 @@ if __name__ == '__main__':
     parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
     svc = svm.SVC()
     clf = GridSearchCV(svc, parameters)
-    clf.fit(iris.data, iris.target)
 
     # Fit with swag
     swag(clf.fit)(X, y)

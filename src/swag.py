@@ -3,7 +3,7 @@ from pprint import pprint
 
 from src.utils import send_to_es
 from src.utils import get_unique_id
-from src.utils import is_valid_method, get_method_type, get_class_type
+from src.utils import is_valid_entry, get_entry_type
 from src.utils import FITTER, MEASURE, OPTIMIZER
 
 from src.handlers.base_ml_handler import Experiment
@@ -15,15 +15,11 @@ __MAPPER__ = {
 
 
 class Swag:
-    # TODO: Introduce metric as a param of validation
-    # TODO: Define schema for payload - decouple model-info, training-params and validation-metrics
     # TODO: Resource consumption
     # TODO: Test cases
     # TODO: Define random states (if not provided) for reproducibility
     # TODO: Add pre-processing, pipeline, cross_validation, metrics, model_selection
     # TODO: Explore cross_validation defaults methods
-    # TODO: Add separate handlers for each packages
-    # TODO: Add validator
     def __init__(self, experiment_name=None):
         if not experiment_name:
             raise ValueError("Experiment name is required")
@@ -44,29 +40,28 @@ class Swag:
             output = func(*args)
             end_time = time()
 
-            if not is_valid_method(package_name, method_name):
+            if not is_valid_entry(package_name, method_name):
                 return output
 
-            if get_class_type(package_name, method_name) == OPTIMIZER:
+            method_type = get_entry_type(package_name, method_name)
 
-                payload_dict = __MAPPER__.get(package_name).log_optimizer(self.experiment, run_name, func, package_name,
-                                                                          start_time, end_time, output)
-
-                self.swag_info = payload_dict
-
-            else:
-                method_type = get_method_type(package_name, method_name)
-                if method_type == FITTER:
-
+            if method_type == FITTER:
+                model_name = func.__self__.__class__.__name__
+                class_type = get_entry_type(package_name, model_name)
+                if class_type == OPTIMIZER:
+                    payload_dict = __MAPPER__.get(package_name).log_optimizer(self.experiment, run_name, func,
+                                                                              package_name,
+                                                                              start_time, end_time, output)
+                else:
                     payload_dict = __MAPPER__.get(package_name).log_model_fitting(self.experiment, run_name, func,
                                                                                   package_name, start_time, end_time)
-                    self.swag_info = payload_dict
+                self.swag_info = payload_dict
 
-                if method_type == MEASURE:
+            if method_type == MEASURE:
 
-                    payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
-                                                                                  output)
-                    self.swag_info = payload_dict
+                payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
+                                                                              output)
+                self.swag_info = payload_dict
 
             return output
 

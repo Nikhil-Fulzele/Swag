@@ -11,7 +11,9 @@ VALID_METHODS = {
         "predict_prob": PREDICTOR,
         "mean_squared_error": MEASURE,
         "r2_score": MEASURE,
-        "mean_absolute_error": MEASURE
+        "mean_absolute_error": MEASURE,
+        "GridSearchCV": OPTIMIZER,
+        "RandomizedSearchCV": OPTIMIZER
     }
 }
 
@@ -22,25 +24,13 @@ def is_valid_package(package_name):
     return False
 
 
-def is_valid_method(package_name, method_name):
-    if is_valid_package(package_name) and method_name in VALID_METHODS[package_name]:
+def is_valid_entry(package_name, entry_name):
+    if is_valid_package(package_name) and entry_name in VALID_METHODS[package_name]:
         return True
     return False
 
 
-def get_method_type(package_name, method_name):
-    if is_valid_method(package_name, method_name):
-        return VALID_METHODS[package_name][method_name]
+def get_entry_type(package_name, entry_name):
+    if is_valid_entry(package_name, entry_name):
+        return VALID_METHODS[package_name][entry_name]
     return None
-
-
-def is_valid_class(package_name, class_name):
-    if is_valid_package(package_name):
-        return True
-    return False
-
-
-def get_class_type(package_name, class_name):
-    if is_valid_class(package_name, class_name):
-        return OPTIMIZER
-    return OPTIMIZER

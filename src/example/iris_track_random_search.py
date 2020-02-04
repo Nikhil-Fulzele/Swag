@@ -1,4 +1,4 @@
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn import datasets
 from sklearn import svm
 
@@ -16,9 +16,9 @@ if __name__ == '__main__':
     y = iris.target
 
     # Initialize model
-    parameters = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
+    param_distributions = {'kernel': ('linear', 'rbf'), 'C': [1, 10]}
     svc = svm.SVC()
-    clf = GridSearchCV(svc, parameters)
+    clf = RandomizedSearchCV(svc, param_distributions)
     clf.fit(iris.data, iris.target)
 
     # Fit with swag

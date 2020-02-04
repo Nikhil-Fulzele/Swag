@@ -173,7 +173,7 @@ class OptimizerInfo:
         """
         return self.module_name
 
-    def get_optimizer_dict(self) -> dict:
+    def get_optimizer_info_dict(self) -> dict:
         """
 
         :return: Dictionary of Optimizer Info
@@ -183,7 +183,7 @@ class OptimizerInfo:
             "module_name": self.get_module_name()
         }
 
-    def get_optimizer_tuple(self) -> tuple:
+    def get_optimizer_info_tuple(self) -> tuple:
         """
 
         :return: Tuple of Optimizer Info in order
@@ -200,14 +200,14 @@ class Optimizer(OptimizerInfo):
     __param = OrderedDict()
 
     def add_param(self, param_name: str, param_value: any) -> None:
-        param = Param("", "", param_name, param_value)
+        param = Param("", "", param_name, str(param_value))
         self.__param[param_name] = param
 
     def get_param(self, param_name: str) -> Param:
         return self.__param[param_name]
 
     def get_optimizer_dict(self) -> dict:
-        optimizer_info = self.get_optimizer_dict()
+        optimizer_info = self.get_optimizer_info_dict()
 
         param_info = [
             remove_ids(self.get_param(i).get_param_dict(), ["model_id", "run_id"])
@@ -220,7 +220,7 @@ class Optimizer(OptimizerInfo):
         }
 
     def get_optimizer_tuple(self) -> tuple:
-        optimizer_info = self.get_optimizer_tuple()
+        optimizer_info = self.get_optimizer_info_tuple()
 
         param_info = (
             self.get_param(i).get_param_tuple()
@@ -426,7 +426,7 @@ class Run(RunInfo):
         return self.__model
 
     def add_param(self, param_name: str, param_value: any) -> None:
-        param = Param(self.get_run_id(), self.__model.get_model_id(), param_name, param_value)
+        param = Param(self.get_run_id(), self.__model.get_model_id(), param_name, str(param_value))
         self.__param[param_name] = param
 
     def get_param(self, param_name: str) -> Param:

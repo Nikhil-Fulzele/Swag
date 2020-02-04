@@ -54,26 +54,23 @@ def log_model_measure(experiment, metric_name, metric_value):
 
 def log_optimizer(experiment, run_name, func, package_name, start_time, end_time, output):
 
-    module_name = func.__module__.split('._')[0]
-    print("Module Name: {}".format(module_name))
+    optimizer_module_name = func.__module__.split('._')[0]
+    print("Optimizer Module Name: {}".format(optimizer_module_name))
 
-    model_name = func.__self__.__class__.__name__
-    print("Model Name: {}".format(model_name))
+    optimizer_model_name = func.__self__.__class__.__name__
+    print("Optimizer Model Name: {}".format(optimizer_model_name))
 
     package_version = sklearn.__version__
     print("Package Version: {}".format(package_name))
 
-    optimizer = Optimizer(module_name, module_name)
+    optimizer = Optimizer(optimizer_model_name, optimizer_module_name)
 
     filter_params = ["estimator", "param_grid", "param_distributions"]
 
-    _params = [i for i in getfullargspec(func.__self__.__class__).args if i not in filter_params]
+    _params = [i for i in getfullargspec(func.__self__.__class__).args[1:] if i not in filter_params]
     for param_name in _params:
         param_value = func.__self__.__dict__[param_name]
         optimizer.add_param(param_name, param_value)
-
-    # TODO: include this model info and remaining params
-    model = func.__self__.__dict__["estimator"]
 
     triggered_time = datetime.datetime.fromtimestamp(start_time / 1e3)
 
@@ -86,11 +83,21 @@ def log_optimizer(experiment, run_name, func, package_name, start_time, end_time
     df = pd.DataFrame(optimizer_metrics)
     metric_list = df.drop(df.filter(regex='param|rank').columns, axis=1).to_dict(orient='records')
 
-    param_list = optimizer_metrics.get_params()
+    param_list = optimizer_metrics['params']
 
-    for params, metrics in zip(param_list, metric_list):
+    model = func.__self__.__dict__["estimator"]
 
-        model_uid = get_unique_id(func)
+    model_params = model.__dict__
+
+    for rm_params in param_list[-1].keys():
+        model_params.pop(rm_params)
+
+    model_name = model.__class__.__name__
+    module_name = model.__module__.split('._')[0]
+
+    for idx, (params, metrics) in enumerate(zip(param_list, metric_list)):
+
+        model_uid = get_unique_id(func) + "_{}".format(idx)
 
         run_id = get_unique_id()
 
@@ -101,6 +108,8 @@ def log_optimizer(experiment, run_name, func, package_name, start_time, end_time
         run.add_model(
             model_name, model_uid, module_name, package_name, package_version, optimizer
         )
+
+        params.update(model_params)
 
         for param_name in params:
             param_value = params[param_name]

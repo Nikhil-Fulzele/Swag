@@ -2,7 +2,7 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn import datasets
 from random import randint
-from ..swag import Swag
+from swag import Swag
 
 if __name__ == '__main__':
 

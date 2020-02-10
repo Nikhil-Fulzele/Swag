@@ -1,4 +1,4 @@
-elasticsearch
-scikit-learn
-pandas
-numpy
+elasticsearch==7.5.1
+scikit-learn==0.22.1
+pandas==0.25.3
+numpy==1.18.1

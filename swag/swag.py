@@ -31,10 +31,8 @@ class Swag:
         def wrap(*args):
 
             method_name = func.__name__
-            print("Method Name: {}".format(method_name))
 
             package_name = func.__module__.split('.')[0]
-            print("Package Name: {}".format(package_name))
 
             start_time = time()
             output = func(*args)

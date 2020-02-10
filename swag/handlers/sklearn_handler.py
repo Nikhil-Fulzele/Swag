@@ -10,13 +10,10 @@ from ..handlers.base_ml_handler import Run, Optimizer
 def log_model_fitting(experiment, run_name, func, package_name, start_time, end_time):
 
     module_name = func.__module__.split('._')[0]
-    print("Module Name: {}".format(module_name))
 
     model_name = func.__self__.__class__.__name__
-    print("Model Name: {}".format(model_name))
 
     package_version = sklearn.__version__
-    print("Package Version: {}".format(package_name))
 
     run_id = get_unique_id()
 
@@ -55,13 +52,10 @@ def log_model_measure(experiment, metric_name, metric_value):
 def log_optimizer(experiment, run_name, func, package_name, start_time, end_time, output):
 
     optimizer_module_name = func.__module__.split('._')[0]
-    print("Optimizer Module Name: {}".format(optimizer_module_name))
 
     optimizer_model_name = func.__self__.__class__.__name__
-    print("Optimizer Model Name: {}".format(optimizer_model_name))
 
     package_version = sklearn.__version__
-    print("Package Version: {}".format(package_name))
 
     optimizer = Optimizer(optimizer_model_name, optimizer_module_name)
 

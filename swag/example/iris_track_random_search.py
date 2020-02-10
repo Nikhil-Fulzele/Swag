@@ -1,8 +1,7 @@
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn import datasets
 from sklearn import svm
-
-from ..swag import Swag
+from swag import Swag
 
 if __name__ == '__main__':
 

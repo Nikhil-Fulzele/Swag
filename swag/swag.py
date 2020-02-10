@@ -1,13 +1,13 @@
 from time import time
 from pprint import pprint
 
-from src.utils import send_to_es
-from src.utils import get_unique_id
-from src.utils import is_valid_entry, get_entry_type
-from src.utils import FITTER, MEASURE, OPTIMIZER
+from .utils import send_to_es
+from .utils import get_unique_id
+from .utils import is_valid_entry, get_entry_type
+from .utils import FITTER, MEASURE, OPTIMIZER
 
-from src.handlers.base_ml_handler import Experiment
-from src.handlers import sklearn_handler
+from .handlers.base_ml_handler import Experiment
+from .handlers import sklearn_handler
 
 __MAPPER__ = {
     "sklearn": sklearn_handler

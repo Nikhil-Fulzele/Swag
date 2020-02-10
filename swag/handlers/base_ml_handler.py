@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from datetime import datetime
-from src.utils import remove_ids
+from ..utils import remove_ids
 
 
 class Param:

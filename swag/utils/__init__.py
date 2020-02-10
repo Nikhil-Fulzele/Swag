@@ -1,6 +1,6 @@
-from src.store.elastic_search import *
-from src.utils.unique_id_generator import *
-from src.utils.validator import *
+from ..store.elastic_search import *
+from .unique_id_generator import *
+from .validator import *
 
 
 def send_to_es(params_dic):

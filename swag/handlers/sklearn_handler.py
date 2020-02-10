@@ -3,8 +3,8 @@ import datetime
 import sklearn
 import pandas as pd
 
-from src.utils import get_unique_id, get_run_name
-from src.handlers.base_ml_handler import Run, Optimizer
+from ..utils import get_unique_id, get_run_name
+from ..handlers.base_ml_handler import Run, Optimizer
 
 
 def log_model_fitting(experiment, run_name, func, package_name, start_time, end_time):

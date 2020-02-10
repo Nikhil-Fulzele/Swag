@@ -49,7 +49,7 @@ for i in range(3):
     nn = MLPRegressor(hidden_layer_sizes=(a, b, ), n_iter_no_change=10, activation="tanh", max_iter=10)
 
     # Fit with swag
-    swag(nn.fit)(X, y) # Note: Carefully wrap only the fit method and not the parameters
+    swag(nn.fit)(X, y) # NOTE: Carefully wrap only the fit method and not the parameters
 
     # Measure with swag
     swag(mean_squared_error)(y, nn.predict(X))

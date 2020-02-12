@@ -62,6 +62,6 @@ for i in range(3):
     swag(mean_absolute_error)(y, yhat)
 
 s.load() # to store the output in ElasticSearch
-s.show() # to store the display the output in pretty dict format
+s.show() # to display the output in pretty dict format
 
 ```

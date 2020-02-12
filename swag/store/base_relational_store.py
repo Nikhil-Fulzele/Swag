@@ -53,11 +53,18 @@ class BaseStore:
         return cursor
 
 
-class AccessDataBase:
+class BaseDataBaseOperations:
     # TODO: Separate Experiment and Run info from exp and runs
     # TODO: Schema and Insertion into table
+    # TODO: Add exception handling
     def __init__(self, store_conn):
         self.store_conn = store_conn
+
+    def insert_data(self, table_name, **kwargs):
+        columns_names = ", ".join(kwargs.keys())
+        columns_values = ", ".join([str(val) for val in kwargs.values()])
+        query = """INSERT INTO {}({}) VALUES({}) """.format(table_name, columns_names, columns_values)
+        return self.execute(query)
 
     def get_all_experiment(self):
         query = """SELECT * FROM experiment"""

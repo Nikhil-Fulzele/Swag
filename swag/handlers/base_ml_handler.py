@@ -150,6 +150,7 @@ class Metrics:
 
 
 class OptimizerInfo:
+    # TODO: introduce optimizer id
     def __init__(self, optimizer_name: str, module_name: str) -> None:
         """
 
@@ -310,7 +311,7 @@ class ModelMeta:
         optimizer_obj = self.get_optimizer()
         optimizer = optimizer_obj.get_optimizer_dict() if optimizer_obj else None
         return {
-            "run_id" : self.get_run_id(),
+            "run_id": self.get_run_id(),
             "model_name": self.get_model_name(),
             "model_id": self.get_model_id(),
             "module_name": self.get_module_name(),

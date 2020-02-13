@@ -1,8 +1,12 @@
+from .utils import create_table_query, insert_data_query
+from .schema_defination import schema
+
 
 class BaseStore:
+    # TODO: Add exception handling
     _already_initialized = False
 
-    def __init__(self, host, port, username, password, database_obj, database):
+    def __init__(self, host, port, username, password, database, database_obj):
         self.host = host
         self.port = port
         self.username = username
@@ -36,34 +40,19 @@ class BaseStore:
         self.active_connection.close()
         self._already_initialized = False
 
-    def create_table(self, table_name, table_schema):
-        query = "CREATE TABLE {}({})".format(table_name, table_schema)
+    def _create_table(self, table_name):
+        query = create_table_query(table_name)
         self.execute(query)
+
+    def create_tables(self):
+        for table_name in schema.keys():
+            self._create_table(table_name)
 
     def get_cursor(self):
         return self.active_connection.cursor()
 
-    def insert_data(self, table_name, columns, values):
-        query = "INSERT INTO {}({}) VALUES {}".format(table_name, columns, values)
-        self.execute(query)
-
-    def execute(self, query):
-        cursor = self.get_cursor()
-        cursor.execute(query)
-        return cursor
-
-
-class BaseDataBaseOperations:
-    # TODO: Separate Experiment and Run info from exp and runs
-    # TODO: Schema and Insertion into table
-    # TODO: Add exception handling
-    def __init__(self, store_conn):
-        self.store_conn = store_conn
-
     def insert_data(self, table_name, **kwargs):
-        columns_names = ", ".join(kwargs.keys())
-        columns_values = ", ".join([str(val) for val in kwargs.values()])
-        query = """INSERT INTO {}({}) VALUES({}) """.format(table_name, columns_names, columns_values)
+        query = insert_data_query(table_name, **kwargs)
         return self.execute(query)
 
     def get_all_experiment(self):
@@ -102,7 +91,7 @@ class BaseDataBaseOperations:
 
     def get_runs_by_experiment_id(self, experiment_id):
         query = """SELECT * FROM runs WHERE experiment_id IN (
-        SELECT experiment_id FROM experiment WHERE experiment_name = {}
+        SELECT experiment_id FROM experiment WHERE experiment_id = {}
         )""".format(experiment_id)
         return self.execute(query)
 
@@ -199,5 +188,6 @@ class BaseDataBaseOperations:
         return self.execute(query)
 
     def execute(self, query):
-        cursor = self.store_conn.execute(query)
-        return cursor.fetchall()
+        cursor = self.get_cursor()
+        cursor.execute(query)
+        return cursor

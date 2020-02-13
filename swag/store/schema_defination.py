@@ -81,7 +81,7 @@ schema = {
         },
         {
             "column_name": "execution_time",
-            "data_type": DATE,
+            "data_type": FLOAT,
             "size": None,
             "is_primary_key": False,
             "is_foreign_key": False,

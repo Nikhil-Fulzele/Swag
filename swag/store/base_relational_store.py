@@ -15,7 +15,7 @@ class BaseStore:
     # TODO: Add exception handling
     _already_initialized = False
 
-    def __init__(self, host, port, username, password, database="swag"):
+    def __init__(self, host=None, port=None, username=None, password=None, database="swag"):
         self.host = host
         self.port = port
         self.username = username
@@ -246,3 +246,4 @@ class MYSQLStore(BaseStore):
         )
 
         return conn
+

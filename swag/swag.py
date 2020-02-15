@@ -9,6 +9,8 @@ from .utils import FITTER, MEASURE, OPTIMIZER
 from .handlers.base_ml_handler import Experiment
 from .handlers import sklearn_handler
 
+from .store.relational_store import Store
+
 __MAPPER__ = {
     "sklearn": sklearn_handler
 }
@@ -20,12 +22,13 @@ class Swag:
     # TODO: Define random states (if not provided) for reproducibility
     # TODO: Add pre-processing, pipeline, cross_validation, metrics, model_selection
     # TODO: Explore cross_validation defaults methods
-    def __init__(self, experiment_name=None):
+    def __init__(self, experiment_name=None, database_engine=None):
         if not experiment_name:
             raise ValueError("Experiment name is required")
         self.experiment = Experiment(experiment_name, get_unique_id())
         self.experiment_name = self.experiment.get_experiment_name()
         self.swag_info = None
+        self.db_conn = Store(database_engine).conn if database_engine else None
 
     def swag(self, func, run_name=None):
         def wrap(*args):
@@ -48,17 +51,18 @@ class Swag:
                 class_type = get_entry_type(package_name, model_name)
                 if class_type == OPTIMIZER:
                     payload_dict = __MAPPER__.get(package_name).log_optimizer(self.experiment, run_name, func,
-                                                                              package_name,
-                                                                              start_time, end_time, output)
+                                                                              package_name, start_time, end_time,
+                                                                              output, self.db_conn)
                 else:
                     payload_dict = __MAPPER__.get(package_name).log_model_fitting(self.experiment, run_name, func,
-                                                                                  package_name, start_time, end_time)
+                                                                                  package_name, start_time, end_time,
+                                                                                  self.db_conn)
                 self.swag_info = payload_dict
 
             if method_type == MEASURE:
 
                 payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
-                                                                              output)
+                                                                              output, self.db_conn)
                 self.swag_info = payload_dict
 
             return output

@@ -143,6 +143,15 @@ schema = {
             "is_foreign_key": False,
             "is_not_null": False,
             "is_index": False
+        },
+        {
+            "column_name": "optimizer_id",
+            "data_type": STR,
+            "size": 32,
+            "is_primary_key": False,
+            "is_foreign_key": True,
+            "is_not_null": False,
+            "is_index": False
         }
     ],
     "metric": [
@@ -246,15 +255,6 @@ schema = {
             "size": 32,
             "is_primary_key": True,
             "is_foreign_key": False,
-            "is_not_null": True,
-            "is_index": True
-        },
-        {
-            "column_name": "model_id",
-            "data_type": STR,
-            "size": 32,
-            "is_primary_key": False,
-            "is_foreign_key": True,
             "is_not_null": True,
             "is_index": True
         },

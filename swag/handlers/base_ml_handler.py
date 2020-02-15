@@ -18,8 +18,10 @@ class Param:
         self.model_id = model_id
         self.param_name = param_name
         self.param_value = param_value
-        self.db_conn = db_conn
         self.optimizer_id = optimizer_id
+        self.db_conn = db_conn
+        if self.db_conn:
+            self.load_into_db()
 
     def get_run_id(self) -> str:
         """
@@ -36,6 +38,10 @@ class Param:
         return self.model_id
 
     def get_optimizer_id(self) -> str:
+        """
+
+        :return: Optimizer ID
+        """
         return self.optimizer_id
 
     def get_param_name(self) -> str:
@@ -86,15 +92,14 @@ class Param:
         )
 
     def load_into_db(self) -> None:
-        if not self.db_conn:
-            self.db_conn.insert_into_db(
-                "params",
-                run_id=self.get_run_id(),
-                model_id=self.get_model_id(),
-                param_name=self.get_param_name(),
-                param_value=self.get_param_value(),
-                optimizer_id=self.get_optimizer_id()
-            )
+        self.db_conn.insert_into_db(
+            "params",
+            run_id=self.get_run_id(),
+            model_id=self.get_model_id(),
+            param_name=self.get_param_name(),
+            param_value=self.get_param_value(),
+            optimizer_id=self.get_optimizer_id()
+        )
 
 
 class Metrics:
@@ -112,6 +117,8 @@ class Metrics:
         self.metric_name = metric_name
         self.metric_value = metric_value
         self.db_conn = db_conn
+        if self.db_conn:
+            self.load_into_db()
 
     def get_run_id(self) -> str:
         """
@@ -172,32 +179,29 @@ class Metrics:
         )
 
     def load_into_db(self) -> None:
-        if self.db_conn:
-            self.db_conn.insert_into_db(
-                "metric",
-                run_id=self.get_run_id(),
-                model_id=self.get_model_id(),
-                metric_name=self.get_metric_name(),
-                metric_value=self.get_metric_value()
-            )
+        self.db_conn.insert_into_db(
+            "metric",
+            run_id=self.get_run_id(),
+            model_id=self.get_model_id(),
+            metric_name=self.get_metric_name(),
+            metric_value=self.get_metric_value()
+        )
 
 
 class OptimizerInfo:
-    def __init__(self, model_id: str, optimizer_id: str, optimizer_name: str, module_name: str,
+    def __init__(self, optimizer_id: str, optimizer_name: str, module_name: str,
                  db_conn: Store = None) -> None:
         """
 
         :param optimizer_name: Name of the optimizer
         :param module_name: Name of the module e.g. sklearn.model_selection
         """
-        self.model_id = model_id
         self.optimizer_id = optimizer_id
         self.optimizer_name = optimizer_name
         self.module_name = module_name
         self.db_conn = db_conn
-
-    def get_model_id(self) -> str:
-        return self.model_id
+        if self.db_conn:
+            self.load_into_db()
 
     def get_optimizer_id(self) -> str:
         return self.optimizer_id
@@ -239,21 +243,19 @@ class OptimizerInfo:
         )
 
     def load_into_db(self) -> None:
-        if self.db_conn:
-            self.db_conn.insert_into_db(
-                "optimizer",
-                model_id=self.get_model_id(),
-                module_name=self.get_module_name(),
-                optimizer_name=self.get_optimizer_name(),
-                optimizer_id=self.get_optimizer_id()
-            )
+        self.db_conn.insert_into_db(
+            "optimizer",
+            module_name=self.get_module_name(),
+            optimizer_name=self.get_optimizer_name(),
+            optimizer_id=self.get_optimizer_id()
+        )
 
 
 class Optimizer(OptimizerInfo):
     __param = OrderedDict()
 
     def add_param(self, param_name: str, param_value: any) -> None:
-        param = Param("", "", param_name, str(param_value))
+        param = Param("", "", param_name, str(param_value), self.optimizer_id, self.db_conn)
         self.__param[param_name] = param
 
     def get_param(self, param_name: str) -> Param:
@@ -305,7 +307,8 @@ class ModelMeta:
         self.package_name = package_name
         self.package_version = package_version
         self.optimizer = optimizer
-        self.db_conn = db_conn
+        if db_conn:
+            self.load_into_db(db_conn)
 
     def get_run_id(self) -> str:
         """
@@ -399,17 +402,19 @@ class ModelMeta:
             optimizer
         )
 
-    def load_into_db(self) -> None:
-        if self.db_conn:
-            self.db_conn.insert_into_db(
-                "model",
-                run_id=self.get_run_id(),
-                model_name=self.get_model_name(),
-                model_id=self.get_model_id(),
-                module_name=self.get_module_name(),
-                package_name=self.get_package_name(),
-                package_version=self.get_package_version()
-            )
+    def load_into_db(self, db_conn: Store) -> None:
+        optimizer_obj = self.get_optimizer()
+        optimizer = optimizer_obj.get_optimizer_tuple() if optimizer_obj else None
+        db_conn.insert_into_db(
+            "model",
+            run_id=self.get_run_id(),
+            model_name=self.get_model_name(),
+            model_id=self.get_model_id(),
+            module_name=self.get_module_name(),
+            package_name=self.get_package_name(),
+            package_version=self.get_package_version(),
+            optimizer_id=optimizer.optimizer_id
+        )
 
 
 class ExperimentInfo:
@@ -417,6 +422,8 @@ class ExperimentInfo:
         self.experiment_name = experiment_name
         self.experiment_id = experiment_id
         self.db_conn = db_conn
+        if self.db_conn:
+            self.load_into_db()
 
     def get_experiment_name(self) -> str:
         return self.experiment_name
@@ -437,12 +444,11 @@ class ExperimentInfo:
         )
 
     def load_into_db(self) -> None:
-        if self.db_conn:
-            self.db_conn.insert_into_db(
-                "experiment",
-                experiment_id=self.get_experiment_id(),
-                experiment_name=self.get_experiment_name()
-            )
+        self.db_conn.insert_into_db(
+            "experiment",
+            experiment_id=self.get_experiment_id(),
+            experiment_name=self.get_experiment_name()
+        )
 
 
 class RunInfo:
@@ -454,6 +460,8 @@ class RunInfo:
         self.triggered_time = triggered_time
         self.execution_time = execution_time
         self.db_conn = db_conn
+        if self.db_conn:
+            self.load_into_db()
 
     def get_experiment_id(self) -> str:
         return self.experiment_id
@@ -489,15 +497,14 @@ class RunInfo:
         )
 
     def load_into_db(self) -> None:
-        if self.db_conn:
-            self.db_conn.insert_into_db(
-                "run",
-                experiment_id=self.get_experiment_id(),
-                run_name=self.get_run_name(),
-                run_id=self.get_run_id(),
-                triggered_time=self.get_triggered_time(),
-                execution_time=self.get_execution_time()
-            )
+        self.db_conn.insert_into_db(
+            "run",
+            experiment_id=self.get_experiment_id(),
+            run_name=self.get_run_name(),
+            run_id=self.get_run_id(),
+            triggered_time=self.get_triggered_time(),
+            execution_time=self.get_execution_time()
+        )
 
 
 class Run(RunInfo):
@@ -508,20 +515,20 @@ class Run(RunInfo):
     def add_model(self, model_name: str, model_id: str, module_name: str, package_name: str,
                   package_version: str, optimizer: [str, None] = None) -> None:
         self.__model = ModelMeta(self.get_run_id(), model_name, model_id, module_name, package_name,
-                                 package_version, optimizer)
+                                 package_version, optimizer, self.db_conn)
 
     def get_model(self) -> ModelMeta:
         return self.__model
 
     def add_param(self, param_name: str, param_value: any) -> None:
-        param = Param(self.get_run_id(), self.__model.get_model_id(), param_name, str(param_value))
+        param = Param(self.get_run_id(), self.__model.get_model_id(), param_name, str(param_value), None, self.db_conn)
         self.__param[param_name] = param
 
     def get_param(self, param_name: str) -> Param:
         return self.__param[param_name]
 
     def add_metric(self, metric_name: str, metric_value: float) -> None:
-        metric = Metrics(self.get_run_id(), self.__model.get_model_id(), metric_name, metric_value)
+        metric = Metrics(self.get_run_id(), self.__model.get_model_id(), metric_name, metric_value, self.db_conn)
         self.__metric[metric_name] = metric
 
     def get_metric(self, metric_name: str) -> Metrics:

@@ -25,10 +25,10 @@ class Swag:
     def __init__(self, experiment_name=None, database_engine=None):
         if not experiment_name:
             raise ValueError("Experiment name is required")
-        self.experiment = Experiment(experiment_name, get_unique_id())
+        self.db_conn = Store(database_engine).conn if database_engine else None
+        self.experiment = Experiment(experiment_name, get_unique_id(), self.db_conn)
         self.experiment_name = self.experiment.get_experiment_name()
         self.swag_info = None
-        self.db_conn = Store(database_engine).conn if database_engine else None
 
     def swag(self, func, run_name=None):
         def wrap(*args):

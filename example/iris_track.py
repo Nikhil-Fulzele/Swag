@@ -7,7 +7,8 @@ from swag import Swag
 if __name__ == '__main__':
 
     # Initialize
-    s = Swag("Exp_name")
+    exp_name = "Iris Exp"
+    s = Swag(exp_name)
     swag = s.swag
 
     # Load data
@@ -36,5 +37,6 @@ if __name__ == '__main__':
         yhat = nn.predict(X)
         swag(mean_absolute_error)(y, yhat)
 
-    # s.show()
+    print(s.get_swag_dataframe(experiment_name=exp_name))
+
     print(s.get_swag_dataframe(run_id="4af7b124de6546af82a37b642cf9af4a"))

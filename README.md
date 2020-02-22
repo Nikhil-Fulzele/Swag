@@ -61,7 +61,6 @@ for i in range(3):
     yhat = nn.predict(X)
     swag(mean_absolute_error)(y, yhat)
 
-s.load() # to store the output in ElasticSearch
 s.show() # to display the output in pretty dict format
 
 ```

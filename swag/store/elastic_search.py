@@ -11,6 +11,7 @@ ES_INDEX = os.getenv("ES_INDEX", "swagger_test")
 class ElasticSearchHelper:
     # TODO: Make the class singleton
     # TODO: Add getter
+    # TODO: deprecate this class
     es_conn = Elasticsearch(ES_END_POINT)
 
     def _create_index(self):

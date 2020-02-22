@@ -4,6 +4,7 @@ from .validator import *
 
 
 def send_to_es(params_dic):
+    # TODO: deprecate this method
     es_helper = ElasticSearchHelper()
     es_helper.upload(params_dic)
 

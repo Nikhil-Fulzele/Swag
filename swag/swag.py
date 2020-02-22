@@ -68,6 +68,7 @@ class Swag:
         return wrap
 
     def load(self):
+        # TODO: deprecate this method
         send_to_es(self.swag_info)
 
     def show(self):

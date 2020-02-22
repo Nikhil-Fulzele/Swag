@@ -23,4 +23,3 @@ if __name__ == '__main__':
     swag(clf.fit)(X, y)
 
     s.show()
-    s.load()

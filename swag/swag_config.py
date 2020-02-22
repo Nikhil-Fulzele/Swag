@@ -1,0 +1,5 @@
+DATABASE = {
+    "SQLite": {
+        "PATH": "/tmp"
+    }
+}

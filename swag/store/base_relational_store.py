@@ -4,11 +4,17 @@ reference: https://www.tutorialspoint.com/python_data_access/python_mysql_create
 from abc import abstractmethod
 from .utils import create_table_query, insert_data_query
 from .schema_defination import schema
-from configparser import RawConfigParser
+from ..swag_config import DATABASE
 
-config = RawConfigParser()
-config_file_path = '../swag.config'
-config.read(config_file_path)
+
+class TableAlreadyExists(Exception):
+    def __init__(self, message):
+        self.message = message
+
+
+class NoActvieDBConnection(Exception):
+    def __init__(self, message):
+        self.message = message
 
 
 class BaseStore:
@@ -34,19 +40,21 @@ class BaseStore:
         pass
 
     def close_connection(self):
+        if not self.active_connection:
+            raise NoActvieDBConnection("No active database found")
         self.active_connection.close()
         self._already_initialized = False
 
     def _create_table(self, table_name):
         query = create_table_query(table_name)
-        self.execute(query)
+        try:
+            self.execute(query)
+        except Exception:
+            pass
 
     def create_tables(self):
         for table_name in schema.keys():
             self._create_table(table_name)
-
-    def get_cursor(self):
-        return self.active_connection.cursor()
 
     def insert_data(self, table_name, **kwargs):
         query = insert_data_query(table_name, **kwargs)
@@ -185,8 +193,9 @@ class BaseStore:
         return self.execute(query)
 
     def execute(self, query):
-        cursor = self.get_cursor()
+        cursor = self.active_connection.cursor()
         cursor.execute(query)
+        self.active_connection.commit()
         return cursor
 
 
@@ -194,8 +203,7 @@ class SQLiteStore(BaseStore):
     import sqlite3
 
     def create_connection(self):
-        _database = dict(config.items("DATABASE"))
-        database_details = _database["SQLite"]
+        database_details = DATABASE["SQLite"]
         sql_path = database_details["PATH"] + "/" + self.database + ".db"
         conn = self.sqlite3.connect(sql_path)
         return conn
@@ -205,8 +213,7 @@ class PostgreSQLStore(BaseStore):
     import psycopg2
 
     def create_connection(self):
-        _database = dict(config.items("DATABASE"))
-        database_details = _database["PostgreSQL"]
+        database_details = DATABASE["PostgreSQL"]
         conn = self.psycopg2.connect(
             database=self.database,
             user=database_details["USER"],
@@ -221,8 +228,7 @@ class MYSQLStore(BaseStore):
     from mysql import connector
 
     def create_connection(self):
-        _database = dict(config.items("DATABASE"))
-        database_details = _database["MSSQL"]
+        database_details = DATABASE["MSSQL"]
         conn = self.connector.connect(
             user=database_details["USER"],
             password=database_details["PASSWORD"],

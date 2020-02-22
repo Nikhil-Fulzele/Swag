@@ -10,7 +10,7 @@ data_type_mapping = {
     INT: "INT",
     FLOAT: "FLOAT",
     STR: "VARCHAR",
-    DATE: "DATE"
+    DATE: "timestamp"
 }
 
 
@@ -55,12 +55,13 @@ def schema_parser(input_schema):
 
 def create_table_query(table_name):
     _schema = schema[table_name]
-    query = '''CREATE TABLE {}({})\n'''.format(table_name, schema_parser(_schema))
+    query = '''CREATE TABLE {}({})'''.format(table_name, schema_parser(_schema))
     return query
 
 
 def insert_data_query(table_name, **kwargs):
     columns_names = ", ".join(kwargs.keys())
-    columns_values = ", ".join(["'"+val+"'" if type(val) == str else str(val) for val in kwargs.values()])
+    columns_values = ", ".join(["'"+str(val)+"'" if type(val) in [str, type(None)] else str(val)
+                                for val in kwargs.values()])
     query = """INSERT INTO {}({}) VALUES({}) """.format(table_name, columns_names, columns_values)
     return query

@@ -1,5 +1,4 @@
 from inspect import getfullargspec
-import datetime
 import sklearn
 import pandas as pd
 
@@ -22,7 +21,7 @@ def log_model_fitting(experiment, run_name, func, package_name, start_time, end_
 
     model_uid = get_unique_id(func)
 
-    triggered_time = datetime.datetime.fromtimestamp(start_time / 1e3)
+    triggered_time = start_time
 
     execution_time = end_time - start_time
 
@@ -72,7 +71,7 @@ def log_optimizer(experiment, run_name, func, package_name, start_time, end_time
         param_value = func.__self__.__dict__[param_name]
         optimizer.add_param(param_name, param_value)
 
-    triggered_time = datetime.datetime.fromtimestamp(start_time / 1e3)
+    triggered_time = start_time
 
     execution_time = end_time - start_time
 

@@ -226,6 +226,7 @@ class OptimizerInfo:
         :return: Dictionary of Optimizer Info
         """
         return {
+            "optimizer_id": self.get_optimizer_id(),
             "optimizer_name": self.get_optimizer_name(),
             "module_name": self.get_module_name()
         }
@@ -234,10 +235,12 @@ class OptimizerInfo:
         """
 
         :return: Tuple of Optimizer Info in order
+            Optimizer ID,
             Optimizer Name,
             Module name
         """
         return (
+            self.get_optimizer_id(),
             self.get_optimizer_name(),
             self.get_module_name()
         )
@@ -404,7 +407,7 @@ class ModelMeta:
 
     def load_into_db(self, db_conn: Store) -> None:
         optimizer_obj = self.get_optimizer()
-        optimizer = optimizer_obj.get_optimizer_tuple() if optimizer_obj else None
+        optimizer_id = optimizer_obj.get_optimizer_tuple()[0][0] if optimizer_obj else None
         db_conn.insert_into_db(
             "model",
             run_id=self.get_run_id(),
@@ -413,7 +416,7 @@ class ModelMeta:
             module_name=self.get_module_name(),
             package_name=self.get_package_name(),
             package_version=self.get_package_version(),
-            optimizer_id=optimizer.optimizer_id
+            optimizer_id=optimizer_id
         )
 
 

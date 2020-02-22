@@ -1,9 +1,8 @@
-from datetime import datetime
 
 INT = int()
 FLOAT = float()
 STR = str()
-DATE = datetime
+DATE = "timestamp"
 BOOL = bool()
 
 """
@@ -223,7 +222,7 @@ schema = {
         {
             "column_name": "param_value",
             "data_type": STR,
-            "size": None,
+            "size": 20,
             "is_primary_key": False,
             "is_foreign_key": False,
             "is_not_null": False,

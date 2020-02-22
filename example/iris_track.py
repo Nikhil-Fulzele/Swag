@@ -36,5 +36,4 @@ if __name__ == '__main__':
         yhat = nn.predict(X)
         swag(mean_absolute_error)(y, yhat)
 
-    s.load()
     s.show()

@@ -5,7 +5,6 @@ from .utils import send_to_es
 from .utils import get_unique_id
 from .utils import is_valid_entry, get_entry_type
 from .utils import FITTER, MEASURE, OPTIMIZER
-
 from .handlers.base_ml_handler import Experiment
 from .handlers import sklearn_handler
 
@@ -20,12 +19,11 @@ class Swag:
     # TODO: Resource consumption
     # TODO: Test cases
     # TODO: Define random states (if not provided) for reproducibility
-    # TODO: Add pre-processing, pipeline, cross_validation, metrics, model_selection
-    # TODO: Explore cross_validation defaults methods
-    def __init__(self, experiment_name=None, database_engine=None):
+    # TODO: Add pipeline
+    def __init__(self, experiment_name=None, database_engine="SQLite"):
         if not experiment_name:
             raise ValueError("Experiment name is required")
-        self.db_conn = Store(database_engine).conn if database_engine else None
+        self.db_conn = Store(database_engine) if database_engine else None
         self.experiment = Experiment(experiment_name, get_unique_id(), self.db_conn)
         self.experiment_name = self.experiment.get_experiment_name()
         self.swag_info = None
@@ -62,7 +60,7 @@ class Swag:
             if method_type == MEASURE:
 
                 payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
-                                                                              output, self.db_conn)
+                                                                              output)
                 self.swag_info = payload_dict
 
             return output

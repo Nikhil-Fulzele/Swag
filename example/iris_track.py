@@ -36,4 +36,5 @@ if __name__ == '__main__':
         yhat = nn.predict(X)
         swag(mean_absolute_error)(y, yhat)
 
-    s.show()
+    # s.show()
+    print(s.get_swag_dataframe(run_id="4af7b124de6546af82a37b642cf9af4a"))

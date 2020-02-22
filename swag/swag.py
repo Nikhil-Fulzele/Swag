@@ -5,6 +5,7 @@ from .utils import send_to_es
 from .utils import get_unique_id
 from .utils import is_valid_entry, get_entry_type
 from .utils import FITTER, MEASURE, OPTIMIZER
+from .utils import get_pandas_dataframe
 from .handlers.base_ml_handler import Experiment
 from .handlers import sklearn_handler
 
@@ -72,7 +73,44 @@ class Swag:
         send_to_es(self.swag_info)
 
     def show(self):
-        pprint(self.swag_info)
+        return self.swag_info
+
+    def get_swag_dataframe(self, experiment_id=None, experiment_name=None, run_id=None, run_name=None):
+        if not experiment_id and not experiment_name and not run_id and not run_name:
+            result_set = self.db_conn.store.get_all_experiment()
+            return get_pandas_dataframe(result_set)
+
+        if experiment_id:
+            result_set = self.db_conn.store.get_runs_by_experiment_id(experiment_id)
+            return get_pandas_dataframe(result_set)
+
+        if experiment_name:
+            result_set = self.db_conn.store.get_runs_by_experiment_name(experiment_name)
+            return get_pandas_dataframe(result_set)
+
+        if run_id:
+            result_set = self.db_conn.store.get_models_by_run_id(run_id)
+            model_df = get_pandas_dataframe(result_set)
+
+            result_set = self.db_conn.store.get_params_by_run_id(run_id)
+            param_df = get_pandas_dataframe(result_set)
+
+            result_set = self.db_conn.store.get_metrics_by_run_id(run_id)
+            metric_df = get_pandas_dataframe(result_set)
+
+            return model_df, param_df, metric_df
+
+        if run_name:
+            result_set = self.db_conn.store.get_models_by_run_name(run_name)
+            model_df = get_pandas_dataframe(result_set)
+
+            result_set = self.db_conn.store.get_params_by_run_name(run_name)
+            param_df = get_pandas_dataframe(result_set)
+
+            result_set = self.db_conn.store.get_metrics_by_run_name(run_name)
+            metric_df = get_pandas_dataframe(result_set)
+
+            return model_df, param_df, metric_df
 
     def get_exp(self):
         return self.swag_info

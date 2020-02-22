@@ -65,12 +65,12 @@ class BaseStore:
         return self.execute(query)
 
     def get_experiment_by_name(self, experiment_name):
-        query = """SELECT * FROM experiment WHERE experiment_name = {}
+        query = """SELECT * FROM experiment WHERE experiment_name = '{}'
         """.format(experiment_name)
         return self.execute(query)
 
     def get_experiment_by_id(self, experiment_id):
-        query = """SELECT * FROM experiment WHERE experiment_id = {}
+        query = """SELECT * FROM experiment WHERE experiment_id = '{}'
         """.format(experiment_id)
         return self.execute(query)
 
@@ -79,116 +79,116 @@ class BaseStore:
         return self.execute(query)
 
     def get_runs_by_name(self, run_name):
-        query = """SELECT * FROM runs WHERE run_name = {}
+        query = """SELECT * FROM run WHERE run_name = '{}'
         """.format(run_name)
         return self.execute(query)
 
     def get_runs_by_id(self, run_id):
-        query = """SELECT * FROM runs WHERE run_id = {}
+        query = """SELECT * FROM run WHERE run_id = '{}'
         """.format(run_id)
         return self.execute(query)
 
     def get_runs_by_experiment_name(self, experiment_name):
-        query = """SELECT * FROM runs WHERE experiment_id IN (
-        SELECT experiment_id FROM experiment WHERE experiment_name = {}
+        query = """SELECT * FROM run WHERE experiment_id IN (
+        SELECT experiment_id FROM experiment WHERE experiment_name = '{}'
         )""".format(experiment_name)
         return self.execute(query)
 
     def get_runs_by_experiment_id(self, experiment_id):
-        query = """SELECT * FROM runs WHERE experiment_id IN (
-        SELECT experiment_id FROM experiment WHERE experiment_id = {}
+        query = """SELECT * FROM run WHERE experiment_id IN (
+        SELECT experiment_id FROM experiment WHERE experiment_id = '{}'
         )""".format(experiment_id)
         return self.execute(query)
 
     def get_models_by_run_name(self, run_name):
         query = """SELECT * FROM model WHERE run_id IN (
-        SELECT run_id FROM runs WHERE run_name = {}
+        SELECT run_id FROM run WHERE run_name = '{}'
         )""".format(run_name)
         return self.execute(query)
 
     def get_models_by_run_id(self, run_id):
         query = """SELECT * FROM model WHERE run_id IN (
-        SELECT run_id FROM runs WHERE run_id = {}
+        SELECT run_id FROM run WHERE run_id = '{}'
         )""".format(run_id)
         return self.execute(query)
 
     def get_params_by_run_name(self, run_name):
         query = """SELECT * FROM params WHERE run_id IN (
-        SELECT run_id FROM runs WHERE run_name = {}
+        SELECT run_id FROM run WHERE run_name = '{}'
         )""".format(run_name)
         return self.execute(query)
 
     def get_params_by_run_id(self, run_id):
         query = """SELECT * FROM params WHERE run_id IN (
-        SELECT run_id FROM runs WHERE run_id = {}
+        SELECT run_id FROM run WHERE run_id = '{}'
         )""".format(run_id)
         return self.execute(query)
 
     def get_params_by_model_name(self, model_name):
         query = """SELECT * FROM params WHERE model_id IN (
-        SELECT model_id FROM model WHERE model_name = {}
+        SELECT model_id FROM model WHERE model_name = '{}'
         )""".format(model_name)
         return self.execute(query)
 
     def get_params_by_model_id(self, model_id):
         query = """SELECT * FROM params WHERE model_id IN (
-        SELECT model_id FROM model WHERE model_id = {}
+        SELECT model_id FROM model WHERE model_id = '{}'
         )""".format(model_id)
         return self.execute(query)
 
     def get_metrics_by_run_name(self, run_name):
-        query = """SELECT * FROM metrics WHERE run_id IN (
-        SELECT run_id FROM runs WHERE run_name = {}
+        query = """SELECT * FROM metric WHERE run_id IN (
+        SELECT run_id FROM run WHERE run_name = '{}'
         )""".format(run_name)
         return self.execute(query)
 
     def get_metrics_by_run_id(self, run_id):
-        query = """SELECT * FROM metrics WHERE run_id IN (
-        SELECT run_id FROM runs WHERE run_id = {}
+        query = """SELECT * FROM metric WHERE run_id IN (
+        SELECT run_id FROM run WHERE run_id = '{}'
         )""".format(run_id)
         return self.execute(query)
 
     def get_metrics_by_model_name(self, model_name):
-        query = """SELECT * FROM metrics WHERE model_id IN (
-        SELECT model_id FROM model WHERE model_name = {}
+        query = """SELECT * FROM metric WHERE model_id IN (
+        SELECT model_id FROM model WHERE model_name = '{}'
         )""".format(model_name)
         return self.execute(query)
 
     def get_metrics_by_model_id(self, model_id):
-        query = """SELECT * FROM metrics WHERE model_id IN (
-        SELECT model_id FROM model WHERE model_id = {}
+        query = """SELECT * FROM metric WHERE model_id IN (
+        SELECT model_id FROM model WHERE model_id = '{}'
         )""".format(model_id)
         return self.execute(query)
 
     def get_optimizer_by_name(self, optimizer_name):
-        query = """SELECT * FROM optimizer WHERE optimizer_name = {}
+        query = """SELECT * FROM optimizer WHERE optimizer_name = '{}'
         """.format(optimizer_name)
         return self.execute(query)
 
     def get_optimizer_by_id(self, optimizer_id):
-        query = """SELECT * FROM optimizer WHERE optimizer_id = {}
+        query = """SELECT * FROM optimizer WHERE optimizer_id = '{}'
         """.format(optimizer_id)
         return self.execute(query)
 
     def get_optimizer_by_model_name(self, model_name):
         query = """SELECT * FROM optimizer WHERE model_id IN (
-        SELECT model_id FROM model WHERE model_name = {}
+        SELECT model_id FROM model WHERE model_name = '{}'
         )""".format(model_name)
         return self.execute(query)
 
     def get_optimizer_by_model_id(self, model_id):
         query = """SELECT * FROM optimizer WHERE model_id IN (
-        SELECT model_id FROM model WHERE model_id = {}
+        SELECT model_id FROM model WHERE model_id = '{}'
         )""".format(model_id)
         return self.execute(query)
 
     def get_optimizer_params_by_optimizer_id(self, optimizer_id):
-        query = """SELECT * FROM optimizer_params WHERE optimizer_id = {}
+        query = """SELECT * FROM optimizer_params WHERE optimizer_id = '{}'
         """.format(optimizer_id)
         return self.execute(query)
 
     def get_optimizer_params_by_optimizer_name(self, optimizer_name):
-        query = """SELECT * FROM optimizer_params WHERE optimizer_name = {}
+        query = """SELECT * FROM optimizer_params WHERE optimizer_name = '{}'
         """.format(optimizer_name)
         return self.execute(query)
 

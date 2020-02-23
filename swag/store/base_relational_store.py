@@ -198,102 +198,84 @@ class BaseStore:
 
     def get_run_metric_given_experiment_name(self, experiment_name):
         query = '''
-        WITH k AS (
-            SELECT metric_name, metric_value, run_id
-            FROM metric
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_name = '{}'
-            )
+        With k AS (
+            SELECT experiment_id
+            FROM experiment
+            WHERE experiment_name = '{}'
         ),
         l AS (
-            SELECT run_id, triggered_time
+            SELECT run_id, experiment_id, triggered_time
             FROM run
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_name = '{}'
-            )
+        ),
+        m AS (
+            SELECT metric_name, metric_value, run_id
+            FROM metric
         )
-        SELECT k.metric_name, k.metric_value, k.run_id, l.triggered_time
-        FROM l JOIN k on k.run_id=l.run_id
-        ORDER BY l.triggered_time ASC'''.format(experiment_name, experiment_name)
+        SELECT m.metric_name, m.metric_value, l.run_id, l.triggered_time
+        FROM l 
+        JOIN k ON l.experiment_id == k.experiment_id 
+        JOIN m ON l.run_id == m.run_id
+        ORDER BY l.triggered_time ASC
+        '''.format(experiment_name)
         return self.execute(query)
 
     def get_run_metric_given_experiment_id(self, experiment_id):
-        query = '''
-        WITH k AS (
+        query = '''        
+        WITH l AS (
+            SELECT run_id, experiment_id, triggered_time
+            FROM run
+            WHERE experiment_id = '{}'
+        ),
+        m AS (
             SELECT metric_name, metric_value, run_id
             FROM metric
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_id = '{}'
-            )
-        ),
-        l AS (
-            SELECT run_id, triggered_time
-            FROM run
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_id = '{}'
-            )
         )
-        SELECT k.metric_name, k.metric_value, k.run_id, l.triggered_time
-        FROM l JOIN k on k.run_id=l.run_id
-        ORDER BY l.triggered_time ASC'''.format(experiment_id, experiment_id)
+        SELECT m.metric_name, m.metric_value, l.run_id, l.triggered_time
+        FROM l 
+        JOIN m ON l.run_id == m.run_id
+        ORDER BY l.triggered_time ASC
+        '''.format(experiment_id)
         return self.execute(query)
 
     def get_run_params_given_experiment_name(self, experiment_name):
         query = '''
-        WITH k AS (
-            SELECT param_name, param_value, run_id
-            FROM params
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_name = '{}'
-            )
+        With k AS (
+            SELECT experiment_id
+            FROM experiment
+            WHERE experiment_name = '{}'
         ),
         l AS (
-            SELECT run_id, triggered_time
+            SELECT run_id, experiment_id, triggered_time
             FROM run
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_name = '{}'
-            )
+        ),
+        m AS (
+            SELECT param_name, param_value, run_id
+            FROM params
         )
-        SELECT k.param_name, k.param_value, k.run_id, l.triggered_time
-        FROM l JOIN k on k.run_id=l.run_id
-        ORDER BY l.triggered_time ASC'''.format(experiment_name, experiment_name)
+        SELECT m.param_name, m.param_value, l.run_id, l.triggered_time
+        FROM l 
+        JOIN k ON l.experiment_id == k.experiment_id 
+        JOIN m ON l.run_id == m.run_id
+        ORDER BY l.triggered_time ASC
+        '''.format(experiment_name)
         return self.execute(query)
 
     def get_run_params_given_experiment_id(self, experiment_id):
         query = '''
-        WITH k AS (
+        WITH l AS (
+            SELECT run_id, experiment_id, triggered_time
+            FROM run
+            WHERE experiment_id = '{}'
+        ),
+        m AS (
             SELECT param_name, param_value, run_id
             FROM params
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_id = '{}'
-            )
-        ),
-        l AS (
-            SELECT run_id, triggered_time
-            FROM run
-            WHERE run_id in (
-                SELECT run_id
-                FROM experiment
-                WHERE experiment_id = '{}'
-            )
         )
-        SELECT k.param_name, k.param_value, k.run_id, l.triggered_time
-        FROM l JOIN k on k.run_id=l.run_id
-        ORDER BY l.triggered_time ASC'''.format(experiment_id, experiment_id)
+        SELECT m.param_name, m.param_value, l.run_id, l.triggered_time
+        FROM l 
+        JOIN m ON l.run_id == m.run_id
+        ORDER BY l.triggered_time ASC
+        '''.format(experiment_id, experiment_id)
         return self.execute(query)
 
     def execute(self, query):

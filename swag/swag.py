@@ -6,6 +6,7 @@ from .utils import get_unique_id
 from .utils import is_valid_entry, get_entry_type
 from .utils import FITTER, MEASURE, OPTIMIZER
 from .utils import get_pandas_dataframe
+from .utils.visualization import _visualize_experiment
 from .handlers.base_ml_handler import Experiment
 from .handlers import sklearn_handler
 
@@ -112,5 +113,44 @@ class Swag:
 
             return model_df, param_df, metric_df
 
-    def get_exp(self):
-        return self.swag_info
+    def visualize_experiment(self, experiment_name=None, experiment_id=None, kind="metrics"):
+        if not experiment_name and not experiment_id:
+            raise Exception("Please Provide Experiment Name or Experiment ID ")
+
+        if kind not in ['metrics', 'params']:
+            raise ValueError("Kind can either be 'metrics' or 'params'")
+
+        kind_mapper_id = {
+            'metrics': self.db_conn.store.get_run_metric_given_experiment_id,
+            'params': self.db_conn.store.get_run_params_given_experiment_id
+        }
+
+        kind_mapper_name = {
+            'metrics': self.db_conn.store.get_run_metric_given_experiment_name,
+            'params': self.db_conn.store.get_run_params_given_experiment_name
+        }
+
+        if experiment_id:
+            result_set = kind_mapper_id[kind](experiment_id)
+        else:
+            result_set = kind_mapper_name[kind](experiment_name)
+
+        df = get_pandas_dataframe(result_set)
+        if kind == 'metrics':
+            _visualize_experiment(
+                df,
+                group_key="metric_name",
+                x_axis="run_id",
+                y_axis="metric_value",
+                title="Metric vs Runs"
+            )
+        else:
+            _visualize_experiment(
+                df,
+                group_key="param_name",
+                x_axis="run_id",
+                y_axis="param_value",
+                title="Params vs Runs"
+            )
+
+

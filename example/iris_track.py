@@ -7,7 +7,7 @@ from swag import Swag
 if __name__ == '__main__':
 
     # Initialize
-    exp_name = "Iris Exp"
+    exp_name = "Iris Experiment - 3"
     s = Swag(exp_name)
     swag = s.swag
 
@@ -40,3 +40,7 @@ if __name__ == '__main__':
     print(s.get_swag_dataframe(experiment_name=exp_name))
 
     print(s.get_swag_dataframe(run_id="4af7b124de6546af82a37b642cf9af4a"))
+
+    s.visualize_experiment(experiment_name=exp_name)
+
+    s.visualize_experiment(experiment_name=exp_name, kind='params')

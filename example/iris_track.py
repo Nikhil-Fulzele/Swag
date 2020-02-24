@@ -7,7 +7,7 @@ from swag import Swag
 if __name__ == '__main__':
 
     # Initialize
-    exp_name = "Iris Experiment - 3"
+    exp_name = "Iris Experiment3"
     s = Swag(exp_name)
     swag = s.swag
 

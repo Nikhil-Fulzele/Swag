@@ -33,10 +33,11 @@ def log_model_fitting(experiment, run_name, func, package_name, start_time, end_
         model_name, model_uid, module_name, package_name, package_version
     )
 
-    _params = [i for i in getfullargspec(func.__self__.__class__).args[1:]]
-    for param_name in _params:
+    specs = getfullargspec(func.__self__.__class__)
+    for param_name, default_value in zip(specs.args[1:], specs.defaults):
         param_value = func.__self__.__dict__[param_name]
-        run.add_param(param_name, param_value)
+        default_flag = default_value != param_value
+        run.add_param(param_name, param_value, default_flag)
 
     experiment.add_run(run)
 
@@ -66,10 +67,13 @@ def log_optimizer(experiment, run_name, func, package_name, start_time, end_time
 
     filter_params = ["estimator", "param_grid", "param_distributions"]
 
-    _params = [i for i in getfullargspec(func.__self__.__class__).args[1:] if i not in filter_params]
-    for param_name in _params:
+    spec = getfullargspec(func.__self__.__class__)
+    for param_name, default_value in zip(spec.args[1:], spec.defaults):
+        if param_name in filter_params:
+            continue
         param_value = func.__self__.__dict__[param_name]
-        optimizer.add_param(param_name, param_value)
+        default_flag = default_value != param_value
+        optimizer.add_param(param_name, param_value, default_flag)
 
     triggered_time = start_time
 
@@ -86,7 +90,14 @@ def log_optimizer(experiment, run_name, func, package_name, start_time, end_time
 
     model = func.__self__.__dict__["estimator"]
 
-    model_params = model.__dict__
+    spec = getfullargspec(model.__class__)
+    model_param_mapper = {
+        k: v for k, v in zip(spec.args[1:], spec.defaults)
+    }
+
+    model_params = {
+        k: model.__dict__[k] for k in spec.args[1:]
+    }
 
     for rm_params in param_list[-1].keys():
         model_params.pop(rm_params)
@@ -112,7 +123,8 @@ def log_optimizer(experiment, run_name, func, package_name, start_time, end_time
 
         for param_name in params:
             param_value = params[param_name]
-            run.add_param(param_name, param_value)
+            default_flag = param_name not in model_params
+            run.add_param(param_name, param_value, default_flag)
 
         for metric_name in metrics:
             metric_value = metrics[metric_name]

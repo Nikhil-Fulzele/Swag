@@ -117,25 +117,25 @@ class BaseStore:
         return self.execute(query)
 
     def get_params_by_run_name(self, run_name):
-        query = """SELECT * FROM params WHERE run_id IN (
+        query = """SELECT * FROM param WHERE run_id IN (
         SELECT run_id FROM run WHERE run_name = '{}'
         )""".format(run_name)
         return self.execute(query)
 
     def get_params_by_run_id(self, run_id):
-        query = """SELECT * FROM params WHERE run_id IN (
+        query = """SELECT * FROM param WHERE run_id IN (
         SELECT run_id FROM run WHERE run_id = '{}'
         )""".format(run_id)
         return self.execute(query)
 
     def get_params_by_model_name(self, model_name):
-        query = """SELECT * FROM params WHERE model_id IN (
+        query = """SELECT * FROM param WHERE model_id IN (
         SELECT model_id FROM model WHERE model_name = '{}'
         )""".format(model_name)
         return self.execute(query)
 
     def get_params_by_model_id(self, model_id):
-        query = """SELECT * FROM params WHERE model_id IN (
+        query = """SELECT * FROM param WHERE model_id IN (
         SELECT model_id FROM model WHERE model_id = '{}'
         )""".format(model_id)
         return self.execute(query)
@@ -187,12 +187,12 @@ class BaseStore:
         return self.execute(query)
 
     def get_optimizer_params_by_optimizer_id(self, optimizer_id):
-        query = """SELECT * FROM optimizer_params WHERE optimizer_id = '{}'
+        query = """SELECT * FROM optimizer_param WHERE optimizer_id = '{}'
         """.format(optimizer_id)
         return self.execute(query)
 
     def get_optimizer_params_by_optimizer_name(self, optimizer_name):
-        query = """SELECT * FROM optimizer_params WHERE optimizer_name = '{}'
+        query = """SELECT * FROM optimizer_param WHERE optimizer_name = '{}'
         """.format(optimizer_name)
         return self.execute(query)
 
@@ -250,7 +250,8 @@ class BaseStore:
         ),
         m AS (
             SELECT param_name, param_value, run_id
-            FROM params
+            FROM param
+            WHERE is_default = 'True'
         )
         SELECT m.param_name, m.param_value, l.run_id, l.triggered_time
         FROM l 
@@ -269,7 +270,8 @@ class BaseStore:
         ),
         m AS (
             SELECT param_name, param_value, run_id
-            FROM params
+            FROM param
+            WHERE is_default = 'True'
         )
         SELECT m.param_name, m.param_value, l.run_id, l.triggered_time
         FROM l 
@@ -286,21 +288,19 @@ class BaseStore:
 
 
 class SQLiteStore(BaseStore):
-    import sqlite3
-
     def create_connection(self):
+        import sqlite3
         database_details = DATABASE["SQLite"]
         sql_path = database_details["PATH"] + "/" + self.database + ".db"
-        conn = self.sqlite3.connect(sql_path)
+        conn = sqlite3.connect(sql_path)
         return conn
 
 
 class PostgreSQLStore(BaseStore):
-    import psycopg2
-
     def create_connection(self):
+        import psycopg2
         database_details = DATABASE["PostgreSQL"]
-        conn = self.psycopg2.connect(
+        conn = psycopg2.connect(
             database=self.database,
             user=database_details["USER"],
             password=database_details["PASSWORD"],
@@ -311,11 +311,10 @@ class PostgreSQLStore(BaseStore):
 
 
 class MYSQLStore(BaseStore):
-    from mysql import connector
-
     def create_connection(self):
+        from mysql import connector
         database_details = DATABASE["MSSQL"]
-        conn = self.connector.connect(
+        conn = connector.connect(
             user=database_details["USER"],
             password=database_details["PASSWORD"],
             host=database_details["HOST"]
@@ -330,7 +329,7 @@ class MYSQLStore(BaseStore):
 
         conn.close()
 
-        conn = self.connector.connect(
+        conn = connector.connect(
             user=database_details["USER"],
             password=database_details["PASSWORD"],
             host=database_details["HOST"],
@@ -338,4 +337,3 @@ class MYSQLStore(BaseStore):
         )
 
         return conn
-

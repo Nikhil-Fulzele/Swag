@@ -5,8 +5,8 @@ from ..store.relational_store import Store
 
 
 class Param:
-    def __init__(self, run_id: str, model_id: str, param_name: str, param_value: any, optimizer_id: str = None,
-                 db_conn: Store = None) -> None:
+    def __init__(self, run_id: str, model_id: str, param_name: str, param_value: any, is_default: bool = True,
+                 optimizer_id: str = None, db_conn: Store = None) -> None:
         """
 
         :param run_id: Run ID for this params
@@ -18,6 +18,7 @@ class Param:
         self.model_id = model_id
         self.param_name = param_name
         self.param_value = param_value
+        self.is_default = is_default
         self.optimizer_id = optimizer_id
         self.db_conn = db_conn
         if self.db_conn:
@@ -58,6 +59,13 @@ class Param:
         """
         return self.param_value
 
+    def get_is_default(self) -> bool:
+        """
+
+        :return: Bool flag to check default
+        """
+        return self.is_default
+
     def get_param_dict(self) -> dict:
         """
 
@@ -68,6 +76,7 @@ class Param:
             "model_id": self.get_model_id(),
             "param_name": self.get_param_name(),
             "param_value": self.get_param_value(),
+            "is_default": self.get_is_default(),
             "optimizer_id": self.get_optimizer_id()
         }
 
@@ -80,6 +89,7 @@ class Param:
             Model ID,
             Param Name,
             Param Value,
+            Default Flag,
             Optimizer ID
         )
         """
@@ -88,16 +98,18 @@ class Param:
             self.get_model_id(),
             self.get_param_name(),
             self.get_param_value(),
+            self.get_is_default(),
             self.get_optimizer_id()
         )
 
     def load_into_db(self) -> None:
         self.db_conn.insert_into_db(
-            "params",
+            "param",
             run_id=self.get_run_id(),
             model_id=self.get_model_id(),
             param_name=self.get_param_name(),
             param_value=self.get_param_value(),
+            is_default=str(self.get_is_default()),
             optimizer_id=self.get_optimizer_id()
         )
 
@@ -257,8 +269,8 @@ class OptimizerInfo:
 class Optimizer(OptimizerInfo):
     __param = OrderedDict()
 
-    def add_param(self, param_name: str, param_value: any) -> None:
-        param = Param("", "", param_name, str(param_value), self.optimizer_id, self.db_conn)
+    def add_param(self, param_name: str, param_value: any, is_default: bool) -> None:
+        param = Param("", "", param_name, str(param_value), is_default, self.optimizer_id, self.db_conn)
         self.__param[param_name] = param
 
     def get_param(self, param_name: str) -> Param:
@@ -523,8 +535,9 @@ class Run(RunInfo):
     def get_model(self) -> ModelMeta:
         return self.__model
 
-    def add_param(self, param_name: str, param_value: any) -> None:
-        param = Param(self.get_run_id(), self.__model.get_model_id(), param_name, str(param_value), None, self.db_conn)
+    def add_param(self, param_name: str, param_value: any, is_default: bool) -> None:
+        param = Param(self.get_run_id(), self.__model.get_model_id(), param_name, str(param_value), is_default, None,
+                      self.db_conn)
         self.__param[param_name] = param
 
     def get_param(self, param_name: str) -> Param:

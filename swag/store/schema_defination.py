@@ -191,7 +191,7 @@ schema = {
             "is_index": False
         }
     ],
-    "params": [
+    "param": [
         {
             "column_name": "run_id",
             "data_type": STR,
@@ -236,6 +236,15 @@ schema = {
             "is_foreign_key": False,
             "is_not_null": False,
             "is_index": True
+        },
+        {
+            "column_name": "is_default",
+            "data_type": BOOL,
+            "size": None,
+            "is_primary_key": False,
+            "is_foreign_key": False,
+            "is_not_null": False,
+            "is_index": False
         }
     ],
     "optimizer": [

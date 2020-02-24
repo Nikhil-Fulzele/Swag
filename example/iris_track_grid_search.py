@@ -6,7 +6,8 @@ from swag import Swag
 if __name__ == '__main__':
 
     # Initialize
-    s = Swag("Exp_name")
+    exp_name = "Iris Exp - Grid"
+    s = Swag(exp_name)
     swag = s.swag
 
     # Load data
@@ -22,4 +23,8 @@ if __name__ == '__main__':
     # Fit with swag
     swag(clf.fit)(X, y)
 
-    s.show()
+    # s.show()
+
+    s.visualize_experiment(experiment_name=exp_name)
+
+    s.visualize_experiment(experiment_name=exp_name, kind='params')

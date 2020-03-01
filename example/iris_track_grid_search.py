@@ -1,4 +1,5 @@
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 from sklearn import datasets
 from sklearn import svm
 from swag import Swag
@@ -23,7 +24,15 @@ if __name__ == '__main__':
     # Fit with swag
     swag(clf.fit)(X, y)
 
-    # s.show()
+    # Measure with swag
+    swag(mean_squared_error)(y, clf.predict(X))
+
+    # Measure with swag
+    swag(r2_score)(y, clf.predict(X))
+
+    # Measure with swag
+    yhat = clf.predict(X)
+    swag(mean_absolute_error)(y, yhat)
 
     s.visualize_experiment(experiment_name=exp_name)
 

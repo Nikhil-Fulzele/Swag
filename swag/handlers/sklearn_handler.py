@@ -83,17 +83,18 @@ def log_optimizer(experiment, run_name, func, package_name, start_time, end_time
 
     optimizer_metrics = output.cv_results_
 
+    best_index = output.best_index_     # use this to move the metrics and param as the last run entry in the exp
+
     df = pd.DataFrame(optimizer_metrics)
     metric_list = df.drop(df.filter(regex='param|rank').columns, axis=1).to_dict(orient='records')
+    metric_list.append(metric_list.pop(best_index))  # moving the best metric to last position
 
     param_list = optimizer_metrics['params']
+    param_list.append(param_list.pop(best_index))     # moving the best params to the last position
 
     model = func.__self__.__dict__["estimator"]
 
     spec = getfullargspec(model.__class__)
-    model_param_mapper = {
-        k: v for k, v in zip(spec.args[1:], spec.defaults)
-    }
 
     model_params = {
         k: model.__dict__[k] for k in spec.args[1:]

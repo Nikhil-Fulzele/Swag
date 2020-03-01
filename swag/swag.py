@@ -28,7 +28,7 @@ class Swag:
         self.db_conn = Store(database_engine) if database_engine else None
         self.experiment = Experiment(experiment_name, get_unique_id(), self.db_conn)
         self.experiment_name = self.experiment.get_experiment_name()
-        self.swag_info = None
+        self.swag_info = None   # TODO: deprecate this variable
 
     def swag(self, func, run_name=None):
         def wrap(*args):
@@ -73,10 +73,12 @@ class Swag:
         # TODO: deprecate this method
         send_to_es(self.swag_info)
 
-    def show(self):
+    def get_json(self):
+        # TODO: deprecate this method
         return self.swag_info
 
     def get_swag_dataframe(self, experiment_id=None, experiment_name=None, run_id=None, run_name=None):
+        # TODO: change the definition
         if not experiment_id and not experiment_name and not run_id and not run_name:
             result_set = self.db_conn.store.get_all_experiment()
             return get_pandas_dataframe(result_set)

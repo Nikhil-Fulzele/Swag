@@ -14,6 +14,10 @@ VALID_METHODS = {
         "mean_absolute_error": MEASURE,
         "GridSearchCV": OPTIMIZER,
         "RandomizedSearchCV": OPTIMIZER
+    },
+    "xgboost": {
+        "fit": FITTER,
+        "predict": PREDICTOR,
     }
 }
 

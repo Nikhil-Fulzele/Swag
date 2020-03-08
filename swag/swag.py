@@ -8,13 +8,13 @@ from .utils import FITTER, MEASURE, OPTIMIZER
 from .utils import get_pandas_dataframe
 from .utils.visualization import _visualize_experiment
 from .handlers.base_ml_handler import Experiment
-from .handlers import sklearn_handler
+from .handlers import sklearn_handler, xgboost_handler
 
 from .store.relational_store import Store
 
 __MAPPER__ = {
     "sklearn": sklearn_handler,
-    "xgboost": sklearn_handler
+    "xgboost": xgboost_handler
 }
 
 

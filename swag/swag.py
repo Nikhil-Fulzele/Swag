@@ -13,7 +13,8 @@ from .handlers import sklearn_handler
 from .store.relational_store import Store
 
 __MAPPER__ = {
-    "sklearn": sklearn_handler
+    "sklearn": sklearn_handler,
+    "xgboost": sklearn_handler
 }
 
 
@@ -32,7 +33,6 @@ class Swag:
 
     def swag(self, func, run_name=None):
         def wrap(*args):
-
             method_name = func.__name__
 
             package_name = func.__module__.split('.')[0]
@@ -115,12 +115,9 @@ class Swag:
 
             return model_df, param_df, metric_df
 
-    def visualize_experiment(self, experiment_name=None, experiment_id=None, kind="metrics"):
+    def visualize_experiment(self, experiment_name=None, experiment_id=None):
         if not experiment_name and not experiment_id:
             raise Exception("Please Provide Experiment Name or Experiment ID ")
-
-        if kind not in ['metrics', 'params']:
-            raise ValueError("Kind can either be 'metrics' or 'params'")
 
         kind_mapper_id = {
             'metrics': self.db_conn.store.get_run_metric_given_experiment_id,
@@ -132,27 +129,28 @@ class Swag:
             'params': self.db_conn.store.get_run_params_given_experiment_name
         }
 
-        if experiment_id:
-            result_set = kind_mapper_id[kind](experiment_id)
-        else:
-            result_set = kind_mapper_name[kind](experiment_name)
+        for kind in ['metrics', 'params']:
+            if experiment_id:
+                result_set = kind_mapper_id[kind](experiment_id)
+            else:
+                result_set = kind_mapper_name[kind](experiment_name)
 
-        df = get_pandas_dataframe(result_set)
-        if kind == 'metrics':
-            _visualize_experiment(
-                df,
-                group_key="metric_name",
-                x_axis="run_id",
-                y_axis="metric_value",
-                title="Metric vs Runs"
-            )
-        else:
-            _visualize_experiment(
-                df,
-                group_key="param_name",
-                x_axis="run_id",
-                y_axis="param_value",
-                title="Params vs Runs"
-            )
+            df = get_pandas_dataframe(result_set)
 
+            if kind == 'metrics':
+                _visualize_experiment(
+                    df,
+                    group_key="metric_name",
+                    x_axis="run_id",
+                    y_axis="metric_value",
+                    title="Metric vs Runs"
+                )
 
+            if kind == 'params':
+                _visualize_experiment(
+                    df,
+                    group_key="param_name",
+                    x_axis="run_id",
+                    y_axis="param_value",
+                    title="Params vs Runs"
+                )

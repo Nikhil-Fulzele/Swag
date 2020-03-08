@@ -35,5 +35,3 @@ if __name__ == '__main__':
     swag(mean_absolute_error)(y, yhat)
 
     s.visualize_experiment(experiment_name=exp_name)
-
-    s.visualize_experiment(experiment_name=exp_name, kind='params')

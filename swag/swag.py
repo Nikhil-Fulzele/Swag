@@ -7,15 +7,11 @@ from .utils import is_valid_entry, get_entry_type
 from .utils import FITTER, MEASURE, OPTIMIZER
 from .utils import get_pandas_dataframe
 from .utils.visualization import _visualize_experiment
-from .handlers.base_ml_handler import Experiment
-from .handlers import sklearn_handler, xgboost_handler
+from .handlers.ml_handler import Experiment
+from .handlers.sklearn_handler import SklearnHandler
+from .handlers.xgboost_handler import XgboostHandler
 
 from .store.relational_store import Store
-
-__MAPPER__ = {
-    "sklearn": sklearn_handler,
-    "xgboost": xgboost_handler
-}
 
 
 class Swag:
@@ -30,12 +26,22 @@ class Swag:
         self.experiment = Experiment(experiment_name, get_unique_id(), self.db_conn)
         self.experiment_name = self.experiment.get_experiment_name()
         self.swag_info = None   # TODO: deprecate this variable
+        self.__MAPPER__ = {
+            "sklearn": SklearnHandler,
+            "xgboost": XgboostHandler
+        }
+        self.cached_handler = dict()
 
     def swag(self, func, run_name=None):
         def wrap(*args):
             method_name = func.__name__
 
             package_name = func.__module__.split('.')[0]
+
+            _handler = self.cached_handler.get(package_name)
+            if not _handler:
+                _handler = self.__MAPPER__.get(package_name)(self.experiment, self.db_conn)
+                self.cached_handler[package_name] = _handler
 
             start_time = time()
             output = func(*args)
@@ -50,19 +56,13 @@ class Swag:
                 model_name = func.__self__.__class__.__name__
                 class_type = get_entry_type(package_name, model_name)
                 if class_type == OPTIMIZER:
-                    payload_dict = __MAPPER__.get(package_name).log_optimizer(self.experiment, run_name, func,
-                                                                              package_name, start_time, end_time,
-                                                                              output, self.db_conn)
+                    payload_dict = _handler.log_optimizer(run_name, func, package_name, start_time, end_time, output)
                 else:
-                    payload_dict = __MAPPER__.get(package_name).log_model_fitting(self.experiment, run_name, func,
-                                                                                  package_name, start_time, end_time,
-                                                                                  self.db_conn)
+                    payload_dict = _handler.log_model_fitting(run_name, func, package_name, start_time, end_time)
                 self.swag_info = payload_dict
 
             if method_type == MEASURE:
-
-                payload_dict = __MAPPER__.get(package_name).log_model_measure(self.experiment, method_name,
-                                                                              output)
+                payload_dict = _handler.log_model_measure(method_name, output)
                 self.swag_info = payload_dict
 
             return output

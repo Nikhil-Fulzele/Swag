@@ -10,11 +10,11 @@ class Store:
 
     def _store(self):
         store_mapping = {
-            "SQLite": SQLiteStore(),
-            "PostgreSQL": PostgreSQLStore(),
-            "MYSQL": MYSQLStore()
+            "SQLite": SQLiteStore,
+            "PostgreSQL": PostgreSQLStore,
+            "MYSQL": MYSQLStore
         }
-        return store_mapping[self.data_engine]
+        return store_mapping[self.data_engine]()
 
     def insert_into_db(self, table_name, **kwargs):
         self.store.insert_data(table_name, **kwargs)

@@ -19,7 +19,6 @@ class NoActvieDBConnection(Exception):
 
 class BaseStore:
     # TODO: Add exception handling
-    _already_initialized = False
 
     def __init__(self, host=None, port=None, username=None, password=None, database="swag"):
         self.host = host
@@ -28,6 +27,7 @@ class BaseStore:
         self.password = password
         self.database = database
         self.active_connection = None
+        self._already_initialized = False
 
     def connect(self):
         if not self._already_initialized:

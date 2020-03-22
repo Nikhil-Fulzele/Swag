@@ -6,15 +6,14 @@ Planned Support:
 1. sklearn (WIP)
 2. keras (TODO)
 3. tensorflow (TODO)
-4. xgboost (TODO)
+4. xgboost (WIP)
 5. LGBM (TODO)
 
-The output is stored in ElasticSearch. Can be accessed via Kibana.
+The output is stored in SQLite by default.
 
 ## Setup and installation
 1. Install Python 3.7+
-2. Setup ES and Kibana - refer https://elk-docker.readthedocs.io
-3. Install the package from develop branch - 
+2. Install the package from develop branch - 
 ```bash
 pip install git+https://github.com/Nikhil-Fulzele/Swag.git@develop
 ```
@@ -61,6 +60,7 @@ for i in range(3):
     yhat = nn.predict(X)
     swag(mean_absolute_error)(y, yhat)
 
-s.show() # to display the output in pretty dict format
+s.get_json() # to display the output in pretty dict format
 
 ```
+Refer example folder for more working examples.

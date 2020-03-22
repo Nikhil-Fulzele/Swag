@@ -2,7 +2,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
 
-def _visualize_experiment(dataframe, group_key=None, x_axis=None, y_axis=None, title=None):
+def display_experiment(dataframe, group_key=None, x_axis=None, y_axis=None, title=None):
     fig = make_subplots()
 
     grouped_metrics = dataframe.groupby(group_key)

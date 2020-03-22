@@ -6,7 +6,7 @@ from .utils import get_unique_id
 from .utils import is_valid_entry, get_entry_type
 from .utils import FITTER, MEASURE, OPTIMIZER
 from .utils import get_pandas_dataframe
-from .utils.visualization import _visualize_experiment
+from .utils.visualization import display_experiment
 from .handlers.ml_handler import Experiment
 from .handlers.sklearn_handler import SklearnHandler
 from .handlers.xgboost_handler import XgboostHandler
@@ -138,7 +138,7 @@ class Swag:
             df = get_pandas_dataframe(result_set)
 
             if kind == 'metrics':
-                _visualize_experiment(
+                display_experiment(
                     df,
                     group_key="metric_name",
                     x_axis="run_id",
@@ -147,7 +147,7 @@ class Swag:
                 )
 
             if kind == 'params':
-                _visualize_experiment(
+                display_experiment(
                     df,
                     group_key="param_name",
                     x_axis="run_id",

@@ -4,7 +4,7 @@ from pprint import pprint
 from .utils import send_to_es
 from .utils import get_unique_id
 from .utils import is_valid_entry, get_entry_type
-from .utils import FITTER, MEASURE, OPTIMIZER
+from .swag_config import FITTER, MEASURE, OPTIMIZER
 from .utils import get_pandas_dataframe
 from .utils.visualization import display_experiment
 from .handlers.ml_handler import Experiment

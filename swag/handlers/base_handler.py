@@ -10,9 +10,13 @@ class BaseHandler:
     def log_model_fitting(self, run_name, func, package_name, start_time, end_time):
         pass
 
-    @abstractmethod
     def log_model_measure(self, metric_name, metric_value):
-        pass
+        """
+        In current implementation, all the metrics are associated with the latest run object in experiment object
+        """
+        run_obj = self.experiment.get_run_at(-1)
+        run_obj.add_metric(metric_name, metric_value)
+        return self.experiment.get_experiment_dict()
 
     def log_optimizer(self, run_name, func, package_name, start_time, end_time, output):
         pass

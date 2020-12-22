@@ -5,7 +5,7 @@ from time import time
 def get_unique_id(func: any = None) -> str:
     if not func:
         return uuid4().hex
-    return str(hash(func.__self__))
+    return str(hash(func))+uuid4().hex
 
 
 def get_run_name(run_id: str) -> str:

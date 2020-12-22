@@ -10,10 +10,9 @@ from ..handlers.base_handler import BaseHandler
 class SklearnHandler(BaseHandler):
 
     def log_model_fitting(self, run_name, func, package_name, start_time, end_time):
-
         module_name = func.__module__.split('._')[0]
 
-        model_name = func.__self__.__class__.__name__
+        model_name = func.__class__.__name__
 
         package_version = sklearn.__version__
 
@@ -36,22 +35,14 @@ class SklearnHandler(BaseHandler):
             model_name, model_uid, module_name, package_name, package_version
         )
 
-        specs = getfullargspec(func.__self__.__class__)
+        specs = getfullargspec(func.__class__)
         for param_name, default_value in zip(specs.args[1:], specs.defaults):
-            param_value = func.__self__.__dict__[param_name]
+            param_value = func.__dict__[param_name]
             default_flag = default_value != param_value
             run.add_param(param_name, param_value, default_flag)
 
         self.experiment.add_run(run)
 
-        return self.experiment.get_experiment_dict()
-
-    def log_model_measure(self, metric_name, metric_value):
-        """
-        In current implementation, all the metrics are associated with the latest run object in experiment object
-        """
-        run_obj = self.experiment.get_run_at(-1)
-        run_obj.add_metric(metric_name, metric_value)
         return self.experiment.get_experiment_dict()
 
     def log_optimizer(self, run_name, func, package_name, start_time, end_time, output):
@@ -115,7 +106,7 @@ class SklearnHandler(BaseHandler):
             if not run_name:
                 run_name = get_run_name(run_id)
 
-            run = Run(experiment_id, run_name, run_id, triggered_time, execution_time, db_conn)
+            run = Run(experiment_id, run_name, run_id, triggered_time, execution_time, self.db_conn)
             run.add_model(
                 model_name, model_uid, module_name, package_name, package_version, optimizer
             )

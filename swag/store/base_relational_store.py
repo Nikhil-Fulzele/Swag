@@ -5,16 +5,7 @@ from abc import abstractmethod
 from .utils import create_table_query, insert_data_query
 from .schema_defination import schema
 from ..swag_config import DATABASE
-
-
-class TableAlreadyExists(Exception):
-    def __init__(self, message):
-        self.message = message
-
-
-class NoActvieDBConnection(Exception):
-    def __init__(self, message):
-        self.message = message
+from ..utils.swag_exception import TableAlreadyExists, NoActvieDBConnection
 
 
 class BaseStore:

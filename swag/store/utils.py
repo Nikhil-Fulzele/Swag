@@ -4,7 +4,7 @@
 # TODO: create new file for all custom exception definitions
 
 from .schema_defination import *
-
+from ..utils.swag_exception import PrimaryKeyAlreadyExistsException
 
 data_type_mapping = {
     INT: "INT",
@@ -12,11 +12,6 @@ data_type_mapping = {
     STR: "VARCHAR",
     DATE: "timestamp"
 }
-
-
-class PrimaryKeyAlreadyExistsException(Exception):
-    def __init__(self, message):
-        self.message = message
 
 
 def get_type(data_type):
